@@ -3,45 +3,59 @@ import 'package:google_fonts/google_fonts.dart';
 
 /// KAIROS Design System
 /// Maritime government-grade color palette: deep navy, ocean blue, teal, white, soft grey.
-/// Indian government accents: saffron/orange, tricolor green — used sparingly.
 class KairosTheme {
   KairosTheme._();
 
   // ─── Color Palette ────────────────────────────────────────────────────────
 
-  static const Color deepNavy = Color(0xFF0A1628);
-  static const Color navyBlue = Color(0xFF0F2952);
-  static const Color oceanBlue = Color(0xFF1A4A8A);
-  static const Color lightBlue = Color(0xFF2E6FBF);
-  static const Color teal = Color(0xFF0B7A75);
-  static const Color tealLight = Color(0xFF14B8A6);
-  static const Color white = Color(0xFFFFFFFF);
-  static const Color offWhite = Color(0xFFF8FAFB);
-  static const Color surfaceGrey = Color(0xFFF1F5F9);
+  static const Color backgroundLight = Color(0xFFF6F8FB);
+  static const Color primaryNavy = Color(0xFF0F3B6E);
+  static const Color secondaryBlue = Color(0xFF1976D2);
+  static const Color teal = Color(0xFF00A6A6);
+  static const Color seaGreen = Color(0xFF2E7D32);
+  static const Color saffron = Color(0xFFFF9800);
+  
+  static const Color cardWhite = Color(0xFFFFFFFF);
   static const Color borderGrey = Color(0xFFE2E8F0);
-  static const Color textPrimary = Color(0xFF0F172A);
-  static const Color textSecondary = Color(0xFF475569);
+  static const Color textPrimary = Color(0xFF14213D);
+  static const Color textSecondary = Color(0xFF64748B);
   static const Color textMuted = Color(0xFF94A3B8);
 
-  // Accent — Indian government palette (used minimally)
-  static const Color saffron = Color(0xFFFF6B35);
-  static const Color govGreen = Color(0xFF138808);
-
-  // Status colors
   static const Color success = Color(0xFF16A34A);
   static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFDC2626);
+  static const Color error = Color(0xFFD32F2F);
   static const Color info = Color(0xFF0EA5E9);
 
   // Priority colors
   static const Color priorityCritical = Color(0xFF7C3AED);
-  static const Color priorityHigh = Color(0xFFDC2626);
-  static const Color priorityMedium = Color(0xFFF59E0B);
-  static const Color priorityLow = Color(0xFF16A34A);
+  static const Color priorityHigh = error;
+  static const Color priorityMedium = saffron;
+  static const Color priorityLow = seaGreen;
 
-  // SOS — emergency red
-  static const Color sosRed = Color(0xFFCC0000);
-  static const Color sosPulse = Color(0xFFFF4444);
+  static const Color sosRed = error;
+
+  // ─── Legacy Color Palette (for compatibility) ───────────────────────────
+  static const Color white = cardWhite;
+  static const Color offWhite = backgroundLight;
+  static const Color deepNavy = primaryNavy;
+  static const Color navyBlue = primaryNavy;
+  static const Color oceanBlue = secondaryBlue;
+  static const Color surfaceGrey = borderGrey;
+  static const Color govGreen = success;
+  static const Color tealLight = teal;
+
+  // ─── Spacing & Corner Radius ──────────────────────────────────────────────
+  
+  static const double spacing8 = 8.0;
+  static const double spacing12 = 12.0;
+  static const double spacing16 = 16.0;
+  static const double spacing20 = 20.0;
+  static const double spacing24 = 24.0;
+  static const double spacing32 = 32.0;
+
+  static const double radius12 = 12.0;
+  static const double radius16 = 16.0;
+  static const double radius20 = 20.0;
 
   // ─── Theme Data ───────────────────────────────────────────────────────────
 
@@ -50,104 +64,94 @@ class KairosTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: const ColorScheme.light(
-        primary: oceanBlue,
-        onPrimary: white,
+        primary: primaryNavy,
+        onPrimary: cardWhite,
         primaryContainer: Color(0xFFDBEAFE),
-        onPrimaryContainer: deepNavy,
-        secondary: teal,
-        onSecondary: white,
+        onPrimaryContainer: primaryNavy,
+        secondary: secondaryBlue,
+        onSecondary: cardWhite,
         secondaryContainer: Color(0xFFCCFBF1),
-        onSecondaryContainer: Color(0xFF134E4A),
+        onSecondaryContainer: teal,
         error: error,
-        onError: white,
-        surface: offWhite,
+        onError: cardWhite,
+        surface: backgroundLight,
         onSurface: textPrimary,
-        surfaceContainerHighest: surfaceGrey,
+        surfaceContainerHighest: borderGrey,
         outline: borderGrey,
-        outlineVariant: Color(0xFFCBD5E1),
       ),
-      scaffoldBackgroundColor: offWhite,
+      scaffoldBackgroundColor: backgroundLight,
       textTheme: _buildTextTheme(),
       appBarTheme: _buildAppBarTheme(),
       cardTheme: _buildCardTheme(),
       elevatedButtonTheme: _buildElevatedButtonTheme(),
       outlinedButtonTheme: _buildOutlinedButtonTheme(),
-      inputDecorationTheme: _buildInputDecorationTheme(),
       bottomNavigationBarTheme: _buildBottomNavTheme(),
-      chipTheme: _buildChipTheme(),
       dividerTheme: const DividerThemeData(color: borderGrey, thickness: 1),
-      snackBarTheme: _buildSnackBarTheme(),
     );
   }
 
   static TextTheme _buildTextTheme() {
     return TextTheme(
-      displayLarge: const TextStyle(
-        fontSize: 32, fontWeight: FontWeight.w700, color: textPrimary, letterSpacing: -0.5,
+      displayLarge: GoogleFonts.plusJakartaSans(
+        fontSize: 30, fontWeight: FontWeight.w700, color: textPrimary,
       ),
-      displayMedium: const TextStyle(
+      displayMedium: GoogleFonts.plusJakartaSans(
         fontSize: 28, fontWeight: FontWeight.w700, color: textPrimary,
       ),
-      headlineLarge: const TextStyle(
+      headlineLarge: GoogleFonts.plusJakartaSans(
         fontSize: 24, fontWeight: FontWeight.w700, color: textPrimary,
       ),
-      headlineMedium: const TextStyle(
-        fontSize: 20, fontWeight: FontWeight.w600, color: textPrimary,
+      headlineMedium: GoogleFonts.plusJakartaSans(
+        fontSize: 22, fontWeight: FontWeight.w700, color: textPrimary,
       ),
-      headlineSmall: const TextStyle(
+      titleLarge: GoogleFonts.plusJakartaSans(
         fontSize: 18, fontWeight: FontWeight.w600, color: textPrimary,
       ),
-      titleLarge: const TextStyle(
+      titleMedium: GoogleFonts.plusJakartaSans(
         fontSize: 16, fontWeight: FontWeight.w600, color: textPrimary,
       ),
-      titleMedium: const TextStyle(
-        fontSize: 15, fontWeight: FontWeight.w500, color: textPrimary,
+      bodyLarge: GoogleFonts.inter(
+        fontSize: 15, fontWeight: FontWeight.w400, color: textPrimary,
       ),
-      titleSmall: const TextStyle(
-        fontSize: 14, fontWeight: FontWeight.w500, color: textSecondary,
-      ),
-      bodyLarge: const TextStyle(
-        fontSize: 16, fontWeight: FontWeight.w400, color: textPrimary,
-      ),
-      bodyMedium: const TextStyle(
+      bodyMedium: GoogleFonts.inter(
         fontSize: 14, fontWeight: FontWeight.w400, color: textPrimary,
       ),
-      bodySmall: const TextStyle(
-        fontSize: 12, fontWeight: FontWeight.w400, color: textSecondary,
+      bodySmall: GoogleFonts.inter(
+        fontSize: 13, fontWeight: FontWeight.w500, color: textSecondary,
       ),
-      labelLarge: const TextStyle(
-        fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 0.5,
+      labelLarge: GoogleFonts.inter(
+        fontSize: 14, fontWeight: FontWeight.w600,
       ),
-      labelMedium: const TextStyle(
-        fontSize: 12, fontWeight: FontWeight.w500, letterSpacing: 0.3,
+      labelMedium: GoogleFonts.inter(
+        fontSize: 13, fontWeight: FontWeight.w500,
       ),
-      labelSmall: const TextStyle(
-        fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 0.4,
+      labelSmall: GoogleFonts.inter(
+        fontSize: 12, fontWeight: FontWeight.w500,
       ),
     );
   }
 
   static AppBarTheme _buildAppBarTheme() {
-    return const AppBarTheme(
-      backgroundColor: white,
+    return AppBarTheme(
+      backgroundColor: backgroundLight,
       foregroundColor: textPrimary,
       elevation: 0,
       scrolledUnderElevation: 1,
-      shadowColor: Color(0x14000000),
       centerTitle: false,
-      titleTextStyle: TextStyle(
-        fontSize: 18, fontWeight: FontWeight.w700, color: textPrimary,
+      titleTextStyle: GoogleFonts.plusJakartaSans(
+        fontSize: 22, fontWeight: FontWeight.w700, color: textPrimary,
       ),
     );
   }
 
   static CardThemeData _buildCardTheme() {
     return CardThemeData(
-      color: white,
-      elevation: 0,
+      color: cardWhite,
+      elevation: 2,
+      shadowColor: textPrimary.withOpacity(0.05),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: borderGrey),
+        borderRadius: BorderRadius.circular(radius16),
+        side: const BorderSide(color: borderGrey, width: 0.5),
       ),
       margin: EdgeInsets.zero,
     );
@@ -156,13 +160,13 @@ class KairosTheme {
   static ElevatedButtonThemeData _buildElevatedButtonTheme() {
     return ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: oceanBlue,
-        foregroundColor: white,
-        minimumSize: const Size(double.infinity, 52),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        backgroundColor: primaryNavy,
+        foregroundColor: cardWhite,
+        minimumSize: const Size(double.infinity, 48),
+        padding: const EdgeInsets.symmetric(horizontal: spacing24, vertical: spacing12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius12)),
         elevation: 0,
-        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: 0.3),
+        textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -170,69 +174,25 @@ class KairosTheme {
   static OutlinedButtonThemeData _buildOutlinedButtonTheme() {
     return OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: oceanBlue,
-        minimumSize: const Size(double.infinity, 52),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        side: const BorderSide(color: oceanBlue),
-        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        foregroundColor: secondaryBlue,
+        minimumSize: const Size(double.infinity, 48),
+        padding: const EdgeInsets.symmetric(horizontal: spacing24, vertical: spacing12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius12)),
+        side: const BorderSide(color: secondaryBlue),
+        textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
       ),
-    );
-  }
-
-  static InputDecorationTheme _buildInputDecorationTheme() {
-    return InputDecorationTheme(
-      filled: true,
-      fillColor: surfaceGrey,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: borderGrey),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: borderGrey),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: oceanBlue, width: 2),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: error),
-      ),
-      labelStyle: const TextStyle(color: textSecondary, fontSize: 14),
-      hintStyle: const TextStyle(color: textMuted, fontSize: 14),
     );
   }
 
   static BottomNavigationBarThemeData _buildBottomNavTheme() {
-    return const BottomNavigationBarThemeData(
-      backgroundColor: white,
-      selectedItemColor: oceanBlue,
+    return BottomNavigationBarThemeData(
+      backgroundColor: cardWhite,
+      selectedItemColor: primaryNavy,
       unselectedItemColor: textMuted,
-      selectedLabelStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-      unselectedLabelStyle: TextStyle(fontSize: 11),
+      selectedLabelStyle: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600),
+      unselectedLabelStyle: GoogleFonts.inter(fontSize: 11),
       type: BottomNavigationBarType.fixed,
       elevation: 8,
-    );
-  }
-
-  static ChipThemeData _buildChipTheme() {
-    return ChipThemeData(
-      backgroundColor: surfaceGrey,
-      labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    );
-  }
-
-  static SnackBarThemeData _buildSnackBarTheme() {
-    return SnackBarThemeData(
-      backgroundColor: deepNavy,
-      contentTextStyle: const TextStyle(color: white, fontSize: 14),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     );
   }
 
@@ -252,19 +212,13 @@ class KairosTheme {
     switch (status.toUpperCase()) {
       case 'ASSIGNED': return warning;
       case 'ACCEPTED': return info;
-      case 'IN_PROGRESS': return oceanBlue;
+      case 'IN_PROGRESS': return secondaryBlue;
       case 'COMPLETED': return success;
       case 'CANCELLED': return textMuted;
       default: return textMuted;
     }
   }
 
-  static Color compatibilityColor(String compatibility) {
-    switch (compatibility.toUpperCase()) {
-      case 'HIGH': return error;
-      case 'MEDIUM': return warning;
-      case 'LOW': return success;
-      default: return textMuted;
-    }
-  }
+  static Color compatibilityColor(String priority) => priorityColor(priority);
 }
+

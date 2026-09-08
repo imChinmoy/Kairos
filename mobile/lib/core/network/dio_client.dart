@@ -1,11 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../shared/constants/app_constants.dart';
+import '../storage/secure_storage_service.dart';
 
 class DioClient {
   static DioClient? _instance;
   late final Dio _dio;
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   DioClient._() {
     _dio = Dio(
@@ -20,7 +19,7 @@ class DioClient {
       ),
     );
 
-    _dio.interceptors.add(_AuthInterceptor(_secureStorage, _dio));
+    _dio.interceptors.add(_AuthInterceptor(_dio));
   }
 
   static DioClient get instance {
@@ -32,18 +31,17 @@ class DioClient {
 }
 
 class _AuthInterceptor extends Interceptor {
-  final FlutterSecureStorage _storage;
   final Dio _dio;
   bool _isRefreshing = false;
 
-  _AuthInterceptor(this._storage, this._dio);
+  _AuthInterceptor(this._dio);
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _storage.read(key: 'access_token');
+    final token = await SecureStorageService.getAccessToken();
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
@@ -58,7 +56,7 @@ class _AuthInterceptor extends Interceptor {
     if (err.response?.statusCode == 401 && !_isRefreshing) {
       _isRefreshing = true;
       try {
-        final refreshToken = await _storage.read(key: 'refresh_token');
+        final refreshToken = await SecureStorageService.getRefreshToken();
         if (refreshToken != null) {
           final response = await _dio.post(
             '/auth/refresh',
@@ -69,8 +67,10 @@ class _AuthInterceptor extends Interceptor {
           final newAccessToken = response.data['data']['accessToken'];
           final newRefreshToken = response.data['data']['refreshToken'];
 
-          await _storage.write(key: 'access_token', value: newAccessToken);
-          await _storage.write(key: 'refresh_token', value: newRefreshToken);
+          await SecureStorageService.saveTokens(
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+          );
 
           // Retry original request
           err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
@@ -80,7 +80,7 @@ class _AuthInterceptor extends Interceptor {
         }
       } catch (_) {
         // Refresh failed — clear tokens, user must log in again
-        await _storage.deleteAll();
+        await SecureStorageService.clearAll();
       } finally {
         _isRefreshing = false;
       }

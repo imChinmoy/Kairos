@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/theme/kairos_theme.dart';
+import 'package:flutter/services.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
@@ -20,104 +21,113 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentIndex = _currentIndex(context);
 
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: KairosTheme.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Text('Exit KAIROS?'),
+            content: const Text('Are you sure you want to exit the application?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('CANCEL'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('EXIT', style: TextStyle(color: KairosTheme.error)),
+              ),
+            ],
+          ),
+        );
+        if (shouldExit == true) {
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        extendBody: true,
+        body: child,
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.only(left: KairosTheme.spacing16, right: KairosTheme.spacing16, bottom: KairosTheme.spacing24),
+          child: Container(
+            decoration: BoxDecoration(
+              color: KairosTheme.cardWhite,
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(color: KairosTheme.borderGrey, width: 0.5),
+              boxShadow: [
+                BoxShadow(
+                  color: KairosTheme.textPrimary.withOpacity(0.05),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: SizedBox(
-            height: 64,
-            child: Row(
-              children: [
-                _NavItem(
-                  icon: Icons.home_outlined,
-                  activeIcon: Icons.home,
-                  label: 'Home',
-                  isActive: currentIndex == 0,
-                  onTap: () => context.go('/home'),
-                ),
-                _NavItem(
-                  icon: Icons.map_outlined,
-                  activeIcon: Icons.map,
-                  label: 'Map',
-                  isActive: currentIndex == 1,
-                  onTap: () => context.go('/map'),
-                ),
-                // SOS — center prominent button
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => context.go('/sos'),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
+            child: SafeArea(
+              top: false,
+              child: SizedBox(
+                height: 64,
+                child: Row(
+                  children: [
+                    _NavItem(
+                      icon: Icons.home_outlined,
+                      activeIcon: Icons.home_rounded,
+                      label: 'Home',
+                      isActive: currentIndex == 0,
+                      onTap: () => context.go('/home'),
+                    ),
+                    _NavItem(
+                      icon: Icons.map_outlined,
+                      activeIcon: Icons.map_rounded,
+                      label: 'Map',
+                      isActive: currentIndex == 1,
+                      onTap: () => context.go('/map'),
+                    ),
+                    // SOS — center prominent button
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => context.go('/sos'),
+                        child: Container(
+                          margin: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
                             color: KairosTheme.sosRed,
                             shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: KairosTheme.sosRed.withOpacity(0.4),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
                           child: const Center(
-                            child: Text(
-                              'SOS',
-                              style: TextStyle(
-                                color: KairosTheme.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.5,
-                              ),
+                            child: Icon(
+                              Icons.sos_rounded,
+                              color: KairosTheme.cardWhite,
+                              size: 24,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Emergency',
-                          style: TextStyle(
-                            fontSize: 9,
-                            color: KairosTheme.sosRed,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    _NavItem(
+                      icon: Icons.description_outlined,
+                      activeIcon: Icons.description_rounded,
+                      label: 'Reports',
+                      isActive: currentIndex == 3,
+                      onTap: () => context.go('/reports'),
+                    ),
+                    _NavItem(
+                      icon: Icons.more_horiz,
+                      activeIcon: Icons.more_horiz,
+                      label: 'More',
+                      isActive: false,
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => const _MoreSheet(),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                _NavItem(
-                  icon: Icons.description_outlined,
-                  activeIcon: Icons.description,
-                  label: 'Reports',
-                  isActive: currentIndex == 3,
-                  onTap: () => context.go('/reports'),
-                ),
-                _NavItem(
-                  icon: Icons.more_horiz,
-                  activeIcon: Icons.more_horiz,
-                  label: 'More',
-                  isActive: false,
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (_) => const _MoreSheet(),
-                    );
-                  },
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -152,16 +162,16 @@ class _NavItem extends StatelessWidget {
           children: [
             Icon(
               isActive ? activeIcon : icon,
-              color: isActive ? KairosTheme.oceanBlue : KairosTheme.textMuted,
+              color: isActive ? KairosTheme.primaryNavy : KairosTheme.textMuted,
               size: 24,
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
                 fontSize: 10,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                color: isActive ? KairosTheme.oceanBlue : KairosTheme.textMuted,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                color: isActive ? KairosTheme.primaryNavy : KairosTheme.textMuted,
               ),
             ),
           ],
@@ -177,10 +187,16 @@ class _MoreSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: KairosTheme.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const SizedBox(height: 24),
           const Text('More Options', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
           const SizedBox(height: 16),
           _MoreItem(

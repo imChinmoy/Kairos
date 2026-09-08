@@ -116,6 +116,7 @@ class InvestigationModel {
   final String priority;
   final DateTime? assignedAt;
   final GeoJsonGeometry? sourceRegion;
+  final List<double>? targetLocation;
   final GeoJsonGeometry? slickGeometry;
   final DateTime? releaseStart;
   final DateTime? releaseEnd;
@@ -133,6 +134,7 @@ class InvestigationModel {
     required this.priority,
     this.assignedAt,
     this.sourceRegion,
+    this.targetLocation,
     this.slickGeometry,
     this.releaseStart,
     this.releaseEnd,
@@ -166,6 +168,12 @@ class InvestigationModel {
       priority: json['priority'] as String? ?? 'MEDIUM',
       assignedAt: parseDate(json['assignedAt']),
       sourceRegion: parseGeometry(json['sourceRegion']),
+      targetLocation: json['targetLocation'] != null
+          ? [
+              (json['targetLocation']['latitude'] as num).toDouble(),
+              (json['targetLocation']['longitude'] as num).toDouble(),
+            ]
+          : null,
       slickGeometry: parseGeometry(json['detection']?['geometry']),
       releaseStart: parseDate(tw?['start']),
       releaseEnd: parseDate(tw?['end']),
@@ -196,7 +204,7 @@ class InvestigationModel {
 
   bool get hasSourceRegion => sourceRegion != null;
 
-  List<double>? get sourceCenter => sourceRegion?.center;
+  List<double>? get sourceCenter => targetLocation ?? sourceRegion?.center;
 }
 
 class FieldInspectionSummary {

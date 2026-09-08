@@ -12,6 +12,23 @@ import { assignOfficerSchema } from '../validators/inspection.validators';
 import { UserRole } from '../models/User';
 import { z } from 'zod';
 
+function calculateCentroid(geometry: any): { latitude: number; longitude: number } | null {
+  if (!geometry || geometry.type !== 'Polygon' || !Array.isArray(geometry.coordinates)) return null;
+  const ring = geometry.coordinates[0];
+  if (!Array.isArray(ring) || ring.length === 0) return null;
+  
+  let sumLat = 0;
+  let sumLng = 0;
+  for (const pt of ring) {
+    sumLng += pt[0];
+    sumLat += pt[1];
+  }
+  return {
+    latitude: sumLat / ring.length,
+    longitude: sumLng / ring.length,
+  };
+}
+
 export async function listInvestigations(req: AuthenticatedRequest, res: Response): Promise<void> {
   const { assignments, pagination } = await investigationService.listForUser(req, req.query as Record<string, string>);
 
@@ -89,6 +106,7 @@ export async function getInvestigation(req: AuthenticatedRequest, res: Response)
       geometry: detection.geometry,
     } : null,
     sourceRegion: reconstruction?.source_region || null,
+    targetLocation: calculateCentroid(reconstruction?.source_region),
     releaseTimeWindow: reconstruction
       ? { start: reconstruction.release_window.start_time, end: reconstruction.release_window.end_time }
       : null,

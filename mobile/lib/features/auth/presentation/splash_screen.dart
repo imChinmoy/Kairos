@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import '../../../app/theme/kairos_theme.dart';
 import '../data/auth_repository.dart';
 
@@ -54,6 +55,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     return Scaffold(
       body: Container(
+        width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -134,10 +136,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         ],
                       ),
                       child: Center(
-                        child: Icon(
-                          Icons.satellite_alt_rounded,
-                          size: 52,
-                          color: KairosTheme.oceanBlue,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/logo.jpeg',
+                            width: 116,
+                            height: 116,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
@@ -209,11 +214,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     ),
                     const SizedBox(height: 28),
                     SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white.withOpacity(0.5),
+                      width: 40,
+                      height: 40,
+                      child: Lottie.asset(
+                        'assets/animations/loading.json',
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ],

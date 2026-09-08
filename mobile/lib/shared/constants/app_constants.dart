@@ -4,9 +4,9 @@ class KairosConstants {
 
   // API
   static const String apiBaseUrl = 'http://10.0.2.2:3000'; // Android emulator
-  // static const String apiBaseUrl = 'http://localhost:3000'; // iOS simulator
+  // static const String apiBaseUrl = 'https://kairos-mobile.onrender.com'; // Production
   static const String apiVersion = '/api/v1';
-  static const int apiTimeoutSeconds = 30;
+  static const int apiTimeoutSeconds = 60;
 
   // App info
   static const String appName = 'KAIROS';

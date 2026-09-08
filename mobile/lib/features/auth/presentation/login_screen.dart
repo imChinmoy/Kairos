@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import '../../../app/theme/kairos_theme.dart';
 import '../data/auth_repository.dart';
 import '../../../core/network/connectivity_service.dart';
+import 'package:lottie/lottie.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -31,6 +33,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     setState(() => _isLoading = true);
 
+    await Future.delayed(const Duration(seconds: 1));
+
     await ref.read(authProvider.notifier).login(
       _identifierController.text.trim(),
       _passwordController.text,
@@ -55,9 +59,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final connectivity = ref.watch(connectivityProvider);
     final isOnline = connectivity.valueOrNull ?? true;
 
-    return Scaffold(
-      backgroundColor: KairosTheme.offWhite,
-      body: SafeArea(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Text('Exit KAIROS?'),
+            content: const Text('Are you sure you want to exit the application?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('CANCEL'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('EXIT', style: TextStyle(color: KairosTheme.error)),
+              ),
+            ],
+          ),
+        );
+        if (shouldExit == true) {
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: KairosTheme.offWhite,
+        body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -94,11 +124,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ],
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.satellite_alt_rounded,
-                          size: 38,
-                          color: KairosTheme.oceanBlue,
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/logo.jpeg',
+                          width: 76,
+                          height: 76,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
@@ -242,12 +273,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 KairosTheme.oceanBlue.withOpacity(0.5),
                           ),
                           child: _isLoading
-                              ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
+                              ? SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: Lottie.asset(
+                                    'assets/animations/loading.json',
+                                    fit: BoxFit.contain,
                                   ),
                                 )
                               : const Row(
@@ -326,6 +357,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
