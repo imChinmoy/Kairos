@@ -39,116 +39,174 @@ class InvestigationCard extends StatelessWidget {
                 ),
               ],
             ),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Priority Accent Line
-                  Container(
-                    width: 4,
-                    color: priorityColor,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Gradient Accent
+                Container(
+                  height: 3,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [priorityColor, priorityColor.withValues(alpha: 0.1)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(KairosTheme.spacing16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(KairosTheme.spacing16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Priority Badge & Ref
+                      Row(
                         children: [
-                          // Priority Badge & Ref
-                          Row(
-                            children: [
-                              PriorityBadge(priority: item.priority),
-                              const Spacer(),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: KairosTheme.surfaceWhite.withValues(alpha: 0.4),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  'INV-${item.id.substring(item.id.length > 4 ? item.id.length - 4 : 0).toUpperCase()}',
-                                  style: GoogleFonts.inter(
+                          PriorityBadge(priority: item.priority),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: KairosTheme.surfaceWhite.withValues(alpha: 0.25),
+                              border: Border.all(color: KairosTheme.surfaceWhite.withValues(alpha: 0.5)),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.tag_rounded, size: 10, color: KairosTheme.primaryNavy.withValues(alpha: 0.6)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  item.id.substring(item.id.length > 6 ? item.id.length - 6 : 0).toUpperCase(),
+                                  style: GoogleFonts.robotoMono(
                                     color: KairosTheme.primaryNavy,
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.5,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: KairosTheme.spacing12),
-                          
-                          // Title
-                          Text(
-                            _getTitle(item),
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: KairosTheme.primaryNavy,
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: KairosTheme.spacing12),
-                          
-                          // Location & Date
-                          Row(
-                            children: [
-                              Icon(Icons.location_on_outlined, size: 14, color: KairosTheme.primaryNavy.withValues(alpha: 0.7)),
-                              const SizedBox(width: 6),
-                              Text(
-                                _getRegion(item.id).toUpperCase(),
-                                style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: KairosTheme.primaryNavy.withValues(alpha: 0.8),
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Icon(Icons.access_time_rounded, size: 14, color: KairosTheme.primaryNavy.withValues(alpha: 0.7)),
-                              const SizedBox(width: 6),
-                              Text(
-                                '$dateStr UTC',
-                                style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: KairosTheme.primaryNavy.withValues(alpha: 0.8),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: KairosTheme.spacing16),
-                          
-                          // Status Action
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'FIELD INSPECTION REQUIRED',
-                                style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: KairosTheme.primaryNavy,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward_rounded,
-                                size: 16,
-                                color: KairosTheme.primaryNavy,
-                              ),
-                            ],
                           ),
                         ],
                       ),
-                    ),
+                      const SizedBox(height: KairosTheme.spacing16),
+                      
+                      // Title
+                      Text(
+                        _getTitle(item),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: KairosTheme.primaryNavy,
+                        ),
+                      ),
+                      const SizedBox(height: KairosTheme.spacing16),
+                      
+                      // Structured Meta Information Grid
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: KairosTheme.primaryNavy.withValues(alpha: 0.03),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: KairosTheme.primaryNavy.withValues(alpha: 0.06)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'LOCATION',
+                                    style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: KairosTheme.primaryNavy.withValues(alpha: 0.5), letterSpacing: 0.5),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.my_location_rounded, size: 12, color: KairosTheme.primaryNavy.withValues(alpha: 0.8)),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        _getRegion(item.id).toUpperCase(),
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: KairosTheme.primaryNavy,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(width: 1, height: 28, color: KairosTheme.primaryNavy.withValues(alpha: 0.1)),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'LOGGED',
+                                    style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700, color: KairosTheme.primaryNavy.withValues(alpha: 0.5), letterSpacing: 0.5),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.schedule_rounded, size: 12, color: KairosTheme.primaryNavy.withValues(alpha: 0.8)),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        dateStr,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: KairosTheme.primaryNavy,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Action Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.radar_rounded, size: 14, color: KairosTheme.oceanBlue),
+                              const SizedBox(width: 6),
+                              Text(
+                                'AWAITING INSPECTION',
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: KairosTheme.oceanBlue,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: KairosTheme.primaryNavy,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 10,
+                              color: KairosTheme.cardWhite,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

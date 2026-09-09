@@ -1,11 +1,12 @@
-import admin from 'firebase-admin';
+import { initializeApp, getApps, applicationDefault } from 'firebase-admin/app';
+import { getMessaging, Message } from 'firebase-admin/messaging';
 import { logger } from '../utils/logger';
 
 // Initialize Firebase Admin if not already initialized
 try {
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.applicationDefault(), // Will use GOOGLE_APPLICATION_CREDENTIALS or Firebase defaults
+  if (!getApps().length) {
+    initializeApp({
+      credential: applicationDefault(), // Will use GOOGLE_APPLICATION_CREDENTIALS or Firebase defaults
     });
     logger.info('Firebase Admin initialized successfully');
   }
@@ -24,12 +25,12 @@ export class NotificationService {
     data?: Record<string, string>
   ): Promise<boolean> {
     try {
-      if (!admin.apps.length) {
+      if (!getApps().length) {
         logger.warn('Cannot send notification: Firebase Admin is not initialized');
         return false;
       }
 
-      const message: admin.messaging.Message = {
+      const message: Message = {
         token: fcmToken,
         notification: {
           title,
@@ -38,7 +39,7 @@ export class NotificationService {
         data: data || {},
       };
 
-      const response = await admin.messaging().send(message);
+      const response = await getMessaging().send(message);
       logger.info(`Successfully sent FCM message: ${response}`);
       return true;
     } catch (error) {

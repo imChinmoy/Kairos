@@ -7,3 +7,4 @@ uploads_test/
 logs/
 *.log
 coverage/
+firebase-admin.json
