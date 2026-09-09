@@ -18,8 +18,8 @@ class ConnectionStatusPill extends StatelessWidget {
     switch (state) {
       case KairosConnectionState.secure:
         color = KairosTheme.success;
-        text = 'SECURE';
-        icon = Icons.satellite_alt_rounded;
+        text = 'ONLINE & SECURE';
+        icon = Icons.lock_outline_rounded;
         break;
       case KairosConnectionState.offline:
         color = KairosTheme.warning;
@@ -39,17 +39,17 @@ class ConnectionStatusPill extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(KairosTheme.radius8),
+        border: Border.all(color: color.withOpacity(0.3), width: 0.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: color, size: 12),
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
           Text(
             text,
             style: GoogleFonts.inter(
@@ -64,3 +64,4 @@ class ConnectionStatusPill extends StatelessWidget {
     );
   }
 }
+

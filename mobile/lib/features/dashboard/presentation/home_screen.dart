@@ -6,12 +6,12 @@ import '../../../app/theme/kairos_theme.dart';
 import '../../../core/network/connectivity_service.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../investigations/data/investigation_repository.dart';
-import 'widgets/kairos_header.dart';
-import 'widgets/quick_action_card.dart';
+import '../../../shared/widgets/kairos_app_bar.dart';
+import '../../../shared/widgets/kairos_offline_banner.dart';
+import '../../../shared/widgets/kairos_action_button.dart';
 import '../../../shared/widgets/connection_status_pill.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/investigation_card.dart';
-import '../../../shared/widgets/offline_state_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -24,178 +24,246 @@ class HomeScreen extends ConsumerWidget {
     final isOnline = connectivity.valueOrNull ?? true;
 
     KairosConnectionState connState = isOnline ? KairosConnectionState.secure : KairosConnectionState.offline;
-    // Assuming error state could be handled here if needed.
 
-    return Scaffold(
-      backgroundColor: KairosTheme.backgroundLight,
-      body: SafeArea(
-        bottom: false,
-        child: CustomScrollView(
-          slivers: [
-            // Header
-            SliverToBoxAdapter(
-              child: KairosHeader(
-                greeting: user?.greeting ?? 'Good Morning,',
-                officerName: '${user?.role == 'SUPERVISOR' ? 'Cmdr.' : 'Officer'} ${user?.firstName ?? ''}',
-                connectionState: connState,
-                onProfileTap: () async {
-                  final shouldLogout = await showDialog<bool>(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(KairosTheme.radius16)),
-                      title: Text('Logout',
-                          style: GoogleFonts.plusJakartaSans(
-                              fontWeight: FontWeight.w700,
-                              color: KairosTheme.primaryNavy)),
-                      content: Text(
-                          'Are you sure you want to securely disconnect and logout?',
-                          style: GoogleFonts.inter()),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx, false),
-                          child: const Text('CANCEL'),
+    final officerTitle = '${user?.role == 'SUPERVISOR' ? 'Cmdr.' : 'Officer'} ${user?.firstName ?? ''}';
+
+    return Column(
+      children: [
+        KairosAppBar(
+          title: 'KAIROS',
+          imageTitle: 'assets/images/appbar_image.png',
+          showBackButton: false,
+          centerTitle: false,
+          actions: [
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: KairosTheme.surfaceWhite.withOpacity(0.3)),
+              ),
+              child: IconButton(
+                icon: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    const Icon(Icons.notifications_none_rounded, size: 22, color: KairosTheme.surfaceWhite),
+                    Positioned(
+                      right: 2,
+                      top: 2,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: KairosTheme.error,
+                          shape: BoxShape.circle,
                         ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx, true),
-                          child: const Text('LOGOUT',
-                              style: TextStyle(color: KairosTheme.error)),
-                        ),
-                      ],
+                      ),
                     ),
-                  );
-                  if (shouldLogout == true) {
-                    ref.read(authProvider.notifier).logout();
-                  }
-                },
+                  ],
+                ),
+                onPressed: () {},
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(),
               ),
             ),
-
-            // Quick Actions
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: KairosTheme.spacing24, vertical: KairosTheme.spacing12),
-                child: Row(
-                  children: [
-                    QuickActionCard(
-                      icon: Icons.emergency_share_rounded,
-                      label: 'SOS',
-                      subtext: 'Emergency',
-                      color: KairosTheme.sosRed,
-                      onTap: () => context.go('/sos'),
+            Container(
+              margin: const EdgeInsets.only(right: 16),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: KairosTheme.surfaceWhite.withOpacity(0.3)),
+              ),
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  popupMenuTheme: PopupMenuThemeData(
+                    color: KairosTheme.surfaceWhite,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(KairosTheme.radius12),
                     ),
-                    const SizedBox(width: KairosTheme.spacing12),
-                    QuickActionCard(
-                      icon: Icons.menu_book_rounded,
-                      label: 'Resources',
-                      subtext: 'Field resources',
-                      color: KairosTheme.secondaryBlue,
-                      onTap: () {},
-                    ),
-                    const SizedBox(width: KairosTheme.spacing12),
-                    QuickActionCard(
-                      icon: Icons.gavel_rounded,
-                      label: 'Guidelines',
-                      subtext: 'Protocols',
-                      color: KairosTheme.teal,
-                      onTap: () {},
+                  ),
+                ),
+                child: PopupMenuButton<String>(
+                  icon: const Icon(Icons.person_outline_rounded, size: 22, color: KairosTheme.surfaceWhite),
+                  offset: const Offset(0, 48),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onSelected: (value) async {
+                    if (value == 'logout') {
+                      final shouldLogout = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(KairosTheme.radius12)),
+                          title: Text('Logout', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
+                          content: Text('Securely disconnect and logout?', style: GoogleFonts.inter()),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('CANCEL')),
+                            TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('LOGOUT', style: TextStyle(color: KairosTheme.error))),
+                          ],
+                        ),
+                      );
+                      if (shouldLogout == true) {
+                        ref.read(authProvider.notifier).logout();
+                      }
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'logout',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.logout_rounded, size: 18, color: KairosTheme.error),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Logout',
+                            style: GoogleFonts.inter(
+                              color: KairosTheme.error,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-
-            // Active Investigations Header
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(KairosTheme.spacing24, KairosTheme.spacing24, KairosTheme.spacing24, KairosTheme.spacing16),
-                child: SectionHeader(
-                  title: 'Active Investigations',
-                  actionText: 'View All',
-                  onActionTap: () => context.go('/investigations'),
-                ),
-              ),
-            ),
-
-            // Investigation List or States
-            investigations.when(
-              data: (list) {
-                if (!isOnline && list.isEmpty) {
-                  return SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: KairosTheme.spacing24),
-                      child: OfflineStateCard(
-                        hasCachedData: false,
-                        onRetry: () => ref.refresh(investigationsProvider),
-                      ),
-                    ),
-                  );
-                } else if (!isOnline && list.isNotEmpty) {
-                  // Offline with cached data
-                  return SliverList(
-                    delegate: SliverChildListDelegate([
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: KairosTheme.spacing24),
-                        child: OfflineStateCard(
-                          hasCachedData: true,
-                          lastSyncTime: DateTime.now().subtract(const Duration(minutes: 42)), // Dummy last sync
-                          onRetry: () => ref.refresh(investigationsProvider),
-                        ),
-                      ),
-                      const SizedBox(height: KairosTheme.spacing16),
-                      ...list.map((item) => Padding(
-                            padding: const EdgeInsets.fromLTRB(KairosTheme.spacing24, 0, KairosTheme.spacing24, KairosTheme.spacing16),
-                            child: InvestigationCard(
-                              item: item,
-                              onTap: () => context.push('/investigations/${item.id}'),
-                            ),
-                          )),
-                    ]),
-                  );
-                }
-
-                if (list.isEmpty) {
-                  return const SliverToBoxAdapter(child: _EmptyState());
-                }
-
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => Padding(
-                      padding: const EdgeInsets.fromLTRB(KairosTheme.spacing24, 0, KairosTheme.spacing24, KairosTheme.spacing16),
-                      child: InvestigationCard(
-                        item: list[index],
-                        onTap: () => context.push(
-                          '/investigations/${list[index].id}',
-                        ),
-                      ),
-                    ),
-                    childCount: list.length,
-                  ),
-                );
-              },
-              loading: () => SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (_, __) => const Padding(
-                    padding: EdgeInsets.fromLTRB(KairosTheme.spacing24, 0, KairosTheme.spacing24, KairosTheme.spacing16),
-                    child: _ShimmerCard(),
-                  ),
-                  childCount: 3,
-                ),
-              ),
-              error: (err, _) => SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: KairosTheme.spacing24),
-                  child: OfflineStateCard(
-                    onRetry: () => ref.refresh(investigationsProvider),
-                  ),
-                ),
-              ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 80)),
           ],
         ),
-      ),
+        KairosOfflineBanner(isOnline: isOnline),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async => ref.refresh(investigationsProvider),
+            color: KairosTheme.oceanBlue,
+            child: CustomScrollView(
+              slivers: [
+                // Greeting and Status
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(KairosTheme.spacing24),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user?.greeting ?? 'Good Morning,',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                color: KairosTheme.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: KairosTheme.spacing4),
+                            Text(
+                              officerTitle.toUpperCase(),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: KairosTheme.primaryNavy,
+                              ),
+                            ),
+                            const SizedBox(height: KairosTheme.spacing4),
+                            Text(
+                              'FIELD OPERATIONS',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: KairosTheme.oceanBlue,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                        ConnectionStatusPill(state: connState),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Quick Actions
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: KairosTheme.spacing24),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: KairosActionButton(
+                            label: 'SOS',
+                            icon: Icons.emergency_share_rounded,
+                            color: KairosTheme.sosRed,
+                            onPressed: () => context.go('/sos'),
+                          ),
+                        ),
+                        const SizedBox(width: KairosTheme.spacing12),
+                        Expanded(
+                          child: KairosActionButton(
+                            label: 'TOOLS',
+                            icon: Icons.build_rounded,
+                            isOutline: true,
+                            onPressed: () {},
+                          ),
+                        ),
+                        const SizedBox(width: KairosTheme.spacing12),
+                        Expanded(
+                          child: KairosActionButton(
+                            label: 'MANUAL',
+                            icon: Icons.gavel_rounded,
+                            isOutline: true,
+                            onPressed: () {},
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Active Investigations Header
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(KairosTheme.spacing24, KairosTheme.spacing32, KairosTheme.spacing24, KairosTheme.spacing16),
+                    child: SectionHeader(
+                      title: 'ACTIVE INVESTIGATIONS',
+                      actionText: 'VIEW ALL',
+                      onActionTap: () => context.go('/investigations'),
+                    ),
+                  ),
+                ),
+
+                // Investigations List
+                investigations.when(
+                  data: (list) {
+                    if (list.isEmpty) return const SliverToBoxAdapter(child: _EmptyState());
+                    return SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => Padding(
+                          padding: const EdgeInsets.fromLTRB(KairosTheme.spacing24, 0, KairosTheme.spacing24, KairosTheme.spacing16),
+                          child: InvestigationCard(
+                            item: list[index],
+                            onTap: () => context.push('/investigations/${list[index].id}'),
+                          ),
+                        ),
+                        childCount: list.length,
+                      ),
+                    );
+                  },
+                  loading: () => SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (_, __) => const Padding(
+                        padding: EdgeInsets.fromLTRB(KairosTheme.spacing24, 0, KairosTheme.spacing24, KairosTheme.spacing16),
+                        child: _ShimmerCard(),
+                      ),
+                      childCount: 3,
+                    ),
+                  ),
+                  error: (err, _) => const SliverToBoxAdapter(child: SizedBox.shrink()),
+                ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 80)),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -212,7 +280,7 @@ class _EmptyState extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(KairosTheme.spacing24),
             decoration: BoxDecoration(
-              color: KairosTheme.cardWhite,
+              color: KairosTheme.surfaceWhite,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
@@ -222,8 +290,7 @@ class _EmptyState extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(Icons.assignment_turned_in_rounded,
-                size: 48, color: KairosTheme.teal.withOpacity(0.5)),
+            child: Icon(Icons.assignment_turned_in_rounded, size: 48, color: KairosTheme.teal.withOpacity(0.5)),
           ),
           const SizedBox(height: KairosTheme.spacing24),
           Text(
@@ -259,7 +326,7 @@ class _ShimmerCard extends StatelessWidget {
       height: 130,
       decoration: BoxDecoration(
         color: KairosTheme.borderGrey.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(KairosTheme.radius16),
+        borderRadius: BorderRadius.circular(KairosTheme.radius12),
         border: Border.all(color: KairosTheme.borderGrey),
       ),
     );

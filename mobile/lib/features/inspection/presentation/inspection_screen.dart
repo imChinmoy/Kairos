@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/kairos_theme.dart';
 import '../../../core/gps/location_service.dart';
 import '../data/inspection_repository.dart';
+import '../../../shared/widgets/kairos_app_background.dart';
+import '../../../shared/widgets/kairos_action_button.dart';
 
 class InspectionScreen extends ConsumerStatefulWidget {
   final String investigationId;
@@ -130,43 +133,54 @@ class _InspectionScreenState extends ConsumerState<InspectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: KairosTheme.offWhite,
-      appBar: AppBar(
-        title: const Text('Field Inspection'),
-        backgroundColor: KairosTheme.navyBlue,
-        foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () => context.pop(),
-        ),
-        actions: [
-          // SOS quick access
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
-              onTap: () => context.push('/sos'),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: KairosTheme.sosRed.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: KairosTheme.sosRed.withOpacity(0.5)),
-                ),
-                child: const Text(
-                  'SOS',
-                  style: TextStyle(
-                    color: KairosTheme.sosRed,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
+    return KairosAppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('FIELD INSPECTION', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 16, letterSpacing: 1.0)),
+              Text('NTRO FIELD PROTOCOL', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 10, color: KairosTheme.surfaceWhite.withOpacity(0.7), letterSpacing: 1.5)),
+            ],
+          ),
+          backgroundColor: KairosTheme.primaryNavy,
+          foregroundColor: KairosTheme.surfaceWhite,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+            onPressed: () => context.pop(),
+          ),
+          actions: [
+            // SOS quick access
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Center(
+                child: GestureDetector(
+                  onTap: () => context.push('/sos'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: KairosTheme.error.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(KairosTheme.radius12),
+                      border: Border.all(color: KairosTheme.error.withOpacity(0.5)),
+                    ),
+                    child: Text(
+                      'SOS',
+                      style: GoogleFonts.inter(
+                        color: KairosTheme.error,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-      body: ListView(
+          ],
+        ),
+        body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           // Status banner
@@ -179,7 +193,7 @@ class _InspectionScreenState extends ConsumerState<InspectionScreen> {
           // Step 1: Arrival
           _InspectionStep(
             stepNumber: 1,
-            title: 'Record Arrival',
+            title: 'RECORD ARRIVAL',
             subtitle: 'Auto-capture your GPS location upon arriving at the scene',
             isCompleted: _hasArrived,
             child: Column(
@@ -187,15 +201,14 @@ class _InspectionScreenState extends ConsumerState<InspectionScreen> {
               children: [
                 if (_arrivalLocation != null)
                   _LocationCard(location: _arrivalLocation!),
-                const SizedBox(height: 12),
-                ElevatedButton.icon(
-                  onPressed: _hasArrived ? null : _recordArrival,
-                  icon: Icon(_hasArrived ? Icons.check : Icons.my_location),
-                  label: Text(_hasArrived ? 'Arrival Recorded' : 'Record Arrival'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        _hasArrived ? KairosTheme.success : KairosTheme.oceanBlue,
-                  ),
+                if (_arrivalLocation != null)
+                  const SizedBox(height: 12),
+                KairosActionButton(
+                  label: _hasArrived ? 'ARRIVAL RECORDED' : 'RECORD ARRIVAL',
+                  icon: _hasArrived ? Icons.check : Icons.my_location,
+                  color: _hasArrived ? KairosTheme.success : KairosTheme.oceanBlue,
+                  onPressed: _hasArrived ? () {} : _recordArrival,
+                  isOutline: _hasArrived,
                 ),
               ],
             ),
@@ -204,7 +217,7 @@ class _InspectionScreenState extends ConsumerState<InspectionScreen> {
           // Step 2: Site Conditions
           _InspectionStep(
             stepNumber: 2,
-            title: 'Site Conditions',
+            title: 'SITE CONDITIONS',
             subtitle: 'Record current environmental conditions at the scene',
             isCompleted: false,
             enabled: _inspectionStarted,
@@ -258,7 +271,7 @@ class _InspectionScreenState extends ConsumerState<InspectionScreen> {
           // Step 3: Oil Observation
           _InspectionStep(
             stepNumber: 3,
-            title: 'Oil Observation',
+            title: 'OIL OBSERVATION',
             subtitle: 'Document any visible oil or contamination at the scene',
             isCompleted: false,
             enabled: _inspectionStarted,
@@ -294,7 +307,7 @@ class _InspectionScreenState extends ConsumerState<InspectionScreen> {
           // Step 4: Evidence & Observations
           _InspectionStep(
             stepNumber: 4,
-            title: 'Evidence & Observations',
+            title: 'EVIDENCE & OBSERVATIONS',
             subtitle: 'Capture photos and record field observations',
             isCompleted: false,
             enabled: _inspectionStarted,
@@ -339,7 +352,7 @@ class _InspectionScreenState extends ConsumerState<InspectionScreen> {
           // Step 5: Finding
           _InspectionStep(
             stepNumber: 5,
-            title: 'Inspector\'s Finding',
+            title: 'INSPECTOR\'S FINDING',
             subtitle: 'Record your official assessment of the scene',
             isCompleted: false,
             enabled: _inspectionStarted,
@@ -383,21 +396,17 @@ class _InspectionScreenState extends ConsumerState<InspectionScreen> {
           const SizedBox(height: 24),
 
           // Submit
-          ElevatedButton.icon(
-            onPressed: _inspectionStarted ? _submitInspection : null,
-            icon: const Icon(Icons.send_outlined, size: 20),
-            label: const Text('SUBMIT INSPECTION REPORT'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: KairosTheme.teal,
-              minimumSize: const Size(double.infinity, 54),
-              disabledBackgroundColor: KairosTheme.borderGrey,
-            ),
+          KairosActionButton(
+            label: 'SUBMIT INSPECTION REPORT',
+            icon: Icons.send_rounded,
+            color: KairosTheme.teal,
+            onPressed: _inspectionStarted ? _submitInspection : () {},
           ),
 
           const SizedBox(height: 60),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -468,15 +477,23 @@ class _InspectionStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: enabled ? 1.0 : 0.4,
+      opacity: enabled ? 1.0 : 0.5,
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: KairosTheme.white,
-          borderRadius: BorderRadius.circular(12),
+          color: KairosTheme.surfaceWhite.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(KairosTheme.radius12),
           border: Border.all(
             color: isCompleted ? KairosTheme.success : KairosTheme.borderGrey,
+            width: isCompleted ? 2 : 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: KairosTheme.textPrimary.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -487,8 +504,8 @@ class _InspectionStep extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 28,
-                    height: 28,
+                    width: 32,
+                    height: 32,
                     decoration: BoxDecoration(
                       color: isCompleted
                           ? KairosTheme.success
@@ -497,34 +514,37 @@ class _InspectionStep extends StatelessWidget {
                     ),
                     child: Center(
                       child: isCompleted
-                          ? const Icon(Icons.check, color: Colors.white, size: 14)
+                          ? const Icon(Icons.check, color: KairosTheme.surfaceWhite, size: 16)
                           : Text(
                               stepNumber.toString(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
+                              style: GoogleFonts.inter(
+                                color: KairosTheme.surfaceWhite,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           title,
-                          style: const TextStyle(
+                          style: GoogleFonts.inter(
                             fontWeight: FontWeight.w700,
-                            fontSize: 14,
+                            fontSize: 13,
+                            color: KairosTheme.textPrimary,
+                            letterSpacing: 0.5,
                           ),
                         ),
                         Text(
                           subtitle,
-                          style: const TextStyle(
+                          style: GoogleFonts.inter(
                             fontSize: 11,
                             color: KairosTheme.textSecondary,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -533,9 +553,9 @@ class _InspectionStep extends StatelessWidget {
                 ],
               ),
             ),
-            Divider(height: 1, color: KairosTheme.borderGrey),
+            Divider(height: 1, color: KairosTheme.borderGrey, thickness: 1),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: IgnorePointer(ignoring: !enabled, child: child),
             ),
           ],
@@ -604,10 +624,11 @@ class _FormLabel extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         label,
-        style: const TextStyle(
-          fontSize: 13,
+        style: GoogleFonts.inter(
+          fontSize: 12,
           fontWeight: FontWeight.w600,
           color: KairosTheme.textPrimary,
+          letterSpacing: 0.5,
         ),
       ),
     );

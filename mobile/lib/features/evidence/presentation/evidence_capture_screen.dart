@@ -2,10 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/kairos_theme.dart';
 import '../../../core/camera/camera_service.dart';
 import '../../../core/gps/location_service.dart';
 import '../data/evidence_repository.dart';
+import '../../../shared/widgets/kairos_app_background.dart';
 
 class EvidenceCaptureScreen extends ConsumerStatefulWidget {
   final String inspectionId;
@@ -105,60 +107,69 @@ class _EvidenceCaptureScreenState extends ConsumerState<EvidenceCaptureScreen> {
   Widget build(BuildContext context) {
     final hasPendingUploads = _captured.any((i) => i.status == 'LOCAL');
 
-    return Scaffold(
-      backgroundColor: KairosTheme.deepNavy,
-      appBar: AppBar(
-        title: const Text('Capture Evidence'),
-        backgroundColor: KairosTheme.deepNavy,
-        foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () => context.pop(),
-        ),
-        actions: [
-          if (_captured.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: TextButton(
-                onPressed: hasPendingUploads && !_isUploading
-                    ? _uploadAll
-                    : null,
-                child: _isUploading
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text(
-                        'SYNC ALL',
-                        style: TextStyle(
-                          color: KairosTheme.tealLight,
-                          fontWeight: FontWeight.w700,
+    return KairosAppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('EVIDENCE CAPTURE', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 16, letterSpacing: 1.0)),
+              Text('SECURE SENSOR UPLOAD', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 10, color: KairosTheme.surfaceWhite.withOpacity(0.7), letterSpacing: 1.5)),
+            ],
+          ),
+          backgroundColor: KairosTheme.primaryNavy,
+          foregroundColor: KairosTheme.surfaceWhite,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+            onPressed: () => context.pop(),
+          ),
+          actions: [
+            if (_captured.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: TextButton(
+                  onPressed: hasPendingUploads && !_isUploading
+                      ? _uploadAll
+                      : null,
+                  child: _isUploading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: KairosTheme.surfaceWhite),
+                        )
+                      : Text(
+                          'SYNC ALL',
+                          style: GoogleFonts.inter(
+                            color: KairosTheme.teal,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
                         ),
-                      ),
+                ),
               ),
-            ),
-        ],
-      ),
-      body: Column(
+          ],
+        ),
+        body: Column(
         children: [
           // Integrity notice
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            color: KairosTheme.navyBlue,
+            color: KairosTheme.primaryNavy,
             child: Row(
               children: [
                 const Icon(Icons.verified_outlined,
-                    color: KairosTheme.tealLight, size: 16),
+                    color: KairosTheme.teal, size: 16),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'SHA-256 integrity hash is computed before upload. '
                     'Chain of custody is maintained.',
-                    style: TextStyle(
-                        color: Colors.white70, fontSize: 11),
+                    style: GoogleFonts.inter(
+                        color: KairosTheme.surfaceWhite.withOpacity(0.7), fontSize: 11),
                   ),
                 ),
               ],
@@ -174,20 +185,22 @@ class _EvidenceCaptureScreenState extends ConsumerState<EvidenceCaptureScreen> {
                       children: [
                         Icon(Icons.camera_alt_outlined,
                             size: 64,
-                            color: Colors.white.withOpacity(0.3)),
+                            color: KairosTheme.primaryNavy.withOpacity(0.3)),
                         const SizedBox(height: 12),
                         Text(
-                          'No evidence captured yet',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
+                          'NO EVIDENCE CAPTURED',
+                          style: GoogleFonts.inter(
+                            color: KairosTheme.primaryNavy.withOpacity(0.6),
                             fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.0,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Use the capture button below',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.4),
+                          style: GoogleFonts.inter(
+                            color: KairosTheme.primaryNavy.withOpacity(0.4),
                             fontSize: 12,
                           ),
                         ),
@@ -213,7 +226,10 @@ class _EvidenceCaptureScreenState extends ConsumerState<EvidenceCaptureScreen> {
           // Bottom capture controls
           Container(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-            color: KairosTheme.navyBlue,
+            decoration: BoxDecoration(
+              color: KairosTheme.surfaceWhite,
+              border: Border(top: BorderSide(color: KairosTheme.borderGrey)),
+            ),
             child: Column(
               children: [
                 // Evidence count summary
@@ -259,7 +275,7 @@ class _EvidenceCaptureScreenState extends ConsumerState<EvidenceCaptureScreen> {
                                 ? KairosTheme.oceanBlue.withOpacity(0.5)
                                 : KairosTheme.oceanBlue,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
+                            border: Border.all(color: KairosTheme.surfaceWhite, width: 3),
                             boxShadow: [
                               BoxShadow(
                                 color: KairosTheme.oceanBlue.withOpacity(0.5),
@@ -269,15 +285,15 @@ class _EvidenceCaptureScreenState extends ConsumerState<EvidenceCaptureScreen> {
                             ],
                           ),
                           child: Center(
-                            child: _isCapturing
+                              child: _isCapturing
                                 ? const SizedBox(
                                     width: 24,
                                     height: 24,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2.5, color: Colors.white),
+                                        strokeWidth: 2.5, color: KairosTheme.surfaceWhite),
                                   )
-                                : const Icon(Icons.camera_alt,
-                                    color: Colors.white, size: 28),
+                                : const Icon(Icons.camera_alt_rounded,
+                                    color: KairosTheme.surfaceWhite, size: 28),
                           ),
                         ),
                       ),
@@ -286,10 +302,12 @@ class _EvidenceCaptureScreenState extends ConsumerState<EvidenceCaptureScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _isCapturing ? 'Capturing...' : 'Tap to capture evidence photo',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                  _isCapturing ? 'CAPTURING...' : 'TAP TO CAPTURE EVIDENCE',
+                  style: GoogleFonts.inter(
+                    color: KairosTheme.primaryNavy.withOpacity(0.6),
                     fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ],
@@ -297,7 +315,7 @@ class _EvidenceCaptureScreenState extends ConsumerState<EvidenceCaptureScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -352,10 +370,10 @@ class _EvidenceGridItem extends StatelessWidget {
               children: [
                 Text(
                   item.photo.sha256.substring(0, 8).toUpperCase(),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: KairosTheme.surfaceWhite,
                     fontSize: 9,
-                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.w600,
                     letterSpacing: 1,
                   ),
                 ),
@@ -373,7 +391,7 @@ class _EvidenceGridItem extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       item.status,
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         color: statusColor,
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
@@ -440,17 +458,19 @@ class _CountPill extends StatelessWidget {
       children: [
         Text(
           count.toString(),
-          style: TextStyle(
+          style: GoogleFonts.plusJakartaSans(
             color: color,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
         ),
         Text(
-          label,
-          style: TextStyle(
+          label.toUpperCase(),
+          style: GoogleFonts.inter(
             color: color.withOpacity(0.8),
             fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
           ),
         ),
       ],

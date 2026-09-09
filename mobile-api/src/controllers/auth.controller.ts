@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { authService } from '../services/AuthService';
 import { AuthenticatedRequest } from '../middleware/authenticate';
-import { loginSchema, refreshSchema, logoutSchema } from '../validators/auth.validators';
+import { loginSchema, refreshSchema, logoutSchema, fcmTokenSchema } from '../validators/auth.validators';
 import { sendSuccess, sendError } from '../utils/apiResponse';
 import { createAuditLog } from '../services/AuditService';
 import { AuditAction } from '../models/AuditLog';
@@ -58,4 +58,16 @@ export async function logout(req: Request, res: Response): Promise<void> {
 
 export async function getMe(req: AuthenticatedRequest, res: Response): Promise<void> {
   sendSuccess(res, req.user);
+}
+
+export async function updateFcmToken(req: AuthenticatedRequest, res: Response): Promise<void> {
+  const body = fcmTokenSchema.parse(req.body);
+  const user = req.user;
+  
+  if (user) {
+    user.fcmToken = body.fcmToken;
+    await user.save();
+  }
+
+  sendSuccess(res, null, 200, 'FCM token updated successfully.');
 }

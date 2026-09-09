@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/kairos_theme.dart';
 import '../../../core/gps/location_service.dart';
 import '../../auth/data/auth_repository.dart';
 import '../data/sos_repository.dart';
+import '../../../shared/widgets/kairos_app_bar.dart';
+import '../../../shared/widgets/kairos_action_button.dart';
 
 class SosScreen extends ConsumerStatefulWidget {
   const SosScreen({super.key});
@@ -28,7 +31,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
       duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
-    _pulseAnim = Tween<double>(begin: 0.9, end: 1.1).animate(
+    _pulseAnim = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
   }
@@ -44,42 +47,42 @@ class _SosScreenState extends ConsumerState<SosScreen>
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        backgroundColor: KairosTheme.white,
-        title: const Row(
+        backgroundColor: KairosTheme.surfaceWhite,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(KairosTheme.radius12)),
+        title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: KairosTheme.sosRed, size: 28),
-            SizedBox(width: 8),
+            const Icon(Icons.warning_amber_rounded, color: KairosTheme.error, size: 28),
+            const SizedBox(width: 8),
             Text(
               'EMERGENCY SOS',
-              style: TextStyle(
-                color: KairosTheme.sosRed,
-                fontWeight: FontWeight.w800,
+              style: GoogleFonts.plusJakartaSans(
+                color: KairosTheme.error,
+                fontWeight: FontWeight.w700,
                 fontSize: 18,
               ),
             ),
           ],
         ),
-        content: const Text(
+        content: Text(
           'This will immediately alert the Coast Guard and your supervisor of your GPS location. '
           'Use only in genuine emergencies.\n\n'
           'Press SEND SOS to proceed.',
-          style: TextStyle(fontSize: 14),
+          style: GoogleFonts.inter(fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel',
-                style: TextStyle(color: KairosTheme.textSecondary)),
+            child: Text('Cancel', style: GoogleFonts.inter(color: KairosTheme.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: KairosTheme.sosRed,
+              backgroundColor: KairosTheme.error,
               minimumSize: const Size(120, 44),
             ),
-            child: const Text(
+            child: Text(
               'SEND SOS',
-              style: TextStyle(fontWeight: FontWeight.w800),
+              style: GoogleFonts.inter(fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -100,17 +103,22 @@ class _SosScreenState extends ConsumerState<SosScreen>
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Row(
             children: [
-              Icon(Icons.check_circle, color: Colors.white, size: 18),
-              SizedBox(width: 8),
-              Text('SOS sent. Coast Guard has been notified.'),
+              const Icon(Icons.check_circle, color: KairosTheme.surfaceWhite, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'SOS sent. Coast Guard has been notified.',
+                  style: GoogleFonts.inter(color: KairosTheme.surfaceWhite),
+                ),
+              ),
             ],
           ),
-          backgroundColor: KairosTheme.sosRed,
+          backgroundColor: KairosTheme.error,
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 5),
+          duration: const Duration(seconds: 5),
         ),
       );
     }
@@ -128,242 +136,163 @@ class _SosScreenState extends ConsumerState<SosScreen>
     final user = ref.watch(authProvider).user;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A0000),
+      backgroundColor: Colors.transparent,
+      appBar: const KairosAppBar(
+        title: 'EMERGENCY SOS',
+        subtitle: 'NTRO Field Protocol',
+        showBackButton: false,
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new,
-                        color: Colors.white, size: 18),
-                    onPressed: () => context.pop(),
-                  ),
-                  const Spacer(),
-                  const Text(
-                    'EMERGENCY SOS',
-                    style: TextStyle(
-                      color: KairosTheme.sosRed,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 16,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const Spacer(),
-                  const SizedBox(width: 48),
-                ],
-              ),
-            ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: KairosTheme.spacing24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: KairosTheme.spacing24),
 
-            const SizedBox(height: 12),
-
-            // Officer info
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                padding: const EdgeInsets.all(12),
+              // Officer info
+              Container(
+                padding: const EdgeInsets.all(KairosTheme.spacing16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(8),
+                  color: KairosTheme.surfaceWhite.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(KairosTheme.radius12),
+                  border: Border.all(color: KairosTheme.borderGrey),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.person_outline, color: Colors.white54, size: 18),
-                    const SizedBox(width: 8),
+                    const Icon(Icons.person_outline, color: KairosTheme.primaryNavy, size: 20),
+                    const SizedBox(width: 12),
                     Text(
                       '${user?.name ?? 'Officer'} · ${user?.employeeId ?? ''}',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 13,
+                      style: GoogleFonts.inter(
+                        color: KairosTheme.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
 
-            const Spacer(),
+              const Spacer(),
 
-            // Main SOS button
-            ScaleTransition(
-              scale: _sosSent ? const AlwaysStoppedAnimation(1.0) : _pulseAnim,
-              child: GestureDetector(
-                onLongPress: _sosSent ? null : _triggerSos,
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _sosSent
-                        ? KairosTheme.success
-                        : KairosTheme.sosRed,
-                    boxShadow: [
-                      BoxShadow(
-                        color: (_sosSent ? KairosTheme.success : KairosTheme.sosRed)
-                            .withOpacity(0.6),
-                        blurRadius: 60,
-                        spreadRadius: 20,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _sosSent ? Icons.check : Icons.sos_outlined,
-                        color: Colors.white,
-                        size: 64,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _sosSent ? 'SENT' : 'SOS',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 4,
+              // Main SOS button
+              Center(
+                child: ScaleTransition(
+                  scale: _sosSent ? const AlwaysStoppedAnimation(1.0) : _pulseAnim,
+                  child: GestureDetector(
+                    onLongPress: _sosSent ? null : _triggerSos,
+                    child: Container(
+                      width: 220,
+                      height: 220,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: KairosTheme.surfaceWhite,
+                        border: Border.all(
+                          color: _sosSent ? KairosTheme.success : KairosTheme.error,
+                          width: 8,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: (_sosSent ? KairosTheme.success : KairosTheme.error).withOpacity(0.2),
+                            blurRadius: 40,
+                            spreadRadius: 10,
+                          ),
+                        ],
                       ),
-                    ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _sosSent ? Icons.check : Icons.sos_rounded,
+                            color: _sosSent ? KairosTheme.success : KairosTheme.error,
+                            size: 64,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _sosSent ? 'SENT' : 'SOS',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: _sosSent ? KairosTheme.success : KairosTheme.error,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 16),
-            Text(
-              _sosSent
-                  ? 'SOS signal sent. Help is on the way.'
-                  : 'Hold to activate emergency SOS',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 13,
+              const SizedBox(height: KairosTheme.spacing24),
+              Text(
+                _sosSent
+                    ? 'SOS signal sent. Help is on the way.'
+                    : 'HOLD TO ACTIVATE EMERGENCY SOS',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  color: KairosTheme.textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
               ),
-            ),
 
-            const Spacer(),
+              const Spacer(),
 
-            // Direct call buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'EMERGENCY CONTACTS',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.5,
+              // Direct call buttons
+              Container(
+                padding: const EdgeInsets.all(KairosTheme.spacing20),
+                decoration: BoxDecoration(
+                  color: KairosTheme.surfaceWhite,
+                  borderRadius: BorderRadius.circular(KairosTheme.radius16),
+                  border: Border.all(color: KairosTheme.borderGrey),
+                  boxShadow: [
+                    BoxShadow(
+                      color: KairosTheme.textPrimary.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -4),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  _EmergencyCallButton(
-                    icon: Icons.anchor,
-                    label: 'Coast Guard',
-                    number: '1554',
-                    onTap: () => _callNumber('1554'),
-                  ),
-                  const SizedBox(height: 8),
-                  _EmergencyCallButton(
-                    icon: Icons.local_police_outlined,
-                    label: 'Police Emergency',
-                    number: '100',
-                    onTap: () => _callNumber('100'),
-                  ),
-                  const SizedBox(height: 8),
-                  _EmergencyCallButton(
-                    icon: Icons.local_hospital_outlined,
-                    label: 'Medical Emergency',
-                    number: '108',
-                    onTap: () => _callNumber('108'),
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'EMERGENCY CONTACTS',
+                      style: GoogleFonts.inter(
+                        color: KairosTheme.textMuted,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: KairosTheme.spacing16),
+                    KairosActionButton(
+                      label: 'CALL COAST GUARD (1554)',
+                      icon: Icons.anchor_rounded,
+                      color: KairosTheme.error,
+                      isOutline: false,
+                      onPressed: () => _callNumber('1554'),
+                    ),
+                    const SizedBox(height: KairosTheme.spacing12),
+                    KairosActionButton(
+                      label: 'MEDICAL EMERGENCY (108)',
+                      icon: Icons.local_hospital_rounded,
+                      color: KairosTheme.primaryNavy,
+                      isOutline: true,
+                      onPressed: () => _callNumber('108'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: KairosTheme.spacing24),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _EmergencyCallButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String number;
-  final VoidCallback onTap;
-
-  const _EmergencyCallButton({
-    required this.icon,
-    required this.label,
-    required this.number,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white.withOpacity(0.15)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: Colors.white, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                  Text(
-                    number,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
-                      fontSize: 11,
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: KairosTheme.success.withOpacity(0.2),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.phone, color: KairosTheme.success, size: 18),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

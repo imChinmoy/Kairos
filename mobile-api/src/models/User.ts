@@ -19,6 +19,7 @@ export interface IUser extends Document {
   department?: string;
   designation?: string;
   isActive: boolean;
+  fcmToken?: string;
   lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -51,6 +52,7 @@ const userSchema = new Schema<IUser>(
     department: { type: String, trim: true },
     designation: { type: String, trim: true },
     isActive: { type: Boolean, default: true },
+    fcmToken: { type: String, trim: true },
     lastLoginAt: { type: Date },
   },
   {

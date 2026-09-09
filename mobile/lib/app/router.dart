@@ -19,18 +19,20 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
-
-  return GoRouter(
+  final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/splash',
     debugLogDiagnostics: true,
     redirect: (context, state) {
+      final authState = ref.read(authProvider);
       final isAuthenticated = authState.isAuthenticated;
       final isLoading = authState.isLoading;
       final location = state.uri.path;
 
-      if (isLoading) return '/splash';
+      if (isLoading) {
+        if (location == '/login') return null;
+        return '/splash';
+      }
 
       if (!isAuthenticated && location != '/login') {
         return '/login';
@@ -93,4 +95,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+
+  ref.listen(authProvider, (previous, next) {
+    router.refresh();
+  });
+
+  return router;
 });

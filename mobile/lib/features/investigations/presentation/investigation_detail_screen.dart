@@ -1,10 +1,14 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/kairos_theme.dart';
 import '../data/investigation_repository.dart';
 import '../domain/investigation_model.dart';
+import '../../../shared/widgets/kairos_action_button.dart';
+import '../../../shared/widgets/kairos_app_background.dart';
 
 class InvestigationDetailScreen extends ConsumerWidget {
   final String investigationId;
@@ -17,27 +21,29 @@ class InvestigationDetailScreen extends ConsumerWidget {
       investigationDetailProvider(investigationId),
     );
 
-    return Scaffold(
-      backgroundColor: KairosTheme.offWhite,
-      body: investigationAsync.when(
-        data: (inv) => _InvestigationDetailBody(investigation: inv),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline,
-                    color: KairosTheme.error, size: 48),
-                const SizedBox(height: 12),
-                const Text('Failed to load investigation'),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () => context.pop(),
-                  child: const Text('Go Back'),
-                ),
-              ],
+    return KairosAppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: investigationAsync.when(
+          data: (inv) => _InvestigationDetailBody(investigation: inv),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, _) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline,
+                      color: KairosTheme.error, size: 48),
+                  const SizedBox(height: 12),
+                  Text('Failed to load investigation', style: GoogleFonts.inter()),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () => context.pop(),
+                    child: Text('GO BACK', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -59,21 +65,22 @@ class _InvestigationDetailBody extends ConsumerWidget {
       slivers: [
         // App bar
         SliverAppBar(
-          expandedHeight: 200,
+          expandedHeight: 220,
           pinned: true,
-          backgroundColor: KairosTheme.navyBlue,
-          foregroundColor: Colors.white,
+          backgroundColor: KairosTheme.surfaceWhite.withOpacity(0.7),
+          elevation: 0,
+          foregroundColor: KairosTheme.primaryNavy,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
             onPressed: () => context.pop(),
           ),
           title: Text(
             'INV-${investigationId.substring(investigationId.length > 6 ? investigationId.length - 6 : 0).toUpperCase()}',
-            style: const TextStyle(
-              color: Colors.white,
+            style: GoogleFonts.inter(
+              color: KairosTheme.primaryNavy,
               fontWeight: FontWeight.w700,
               fontSize: 14,
-              fontFamily: 'monospace',
+              letterSpacing: 1.0,
             ),
           ),
           actions: [
@@ -100,13 +107,14 @@ class _InvestigationDetailBody extends ConsumerWidget {
                           shape: BoxShape.circle,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       Text(
-                        '${inv.priority} Priority',
-                        style: TextStyle(
+                        '${inv.priority} PRIORITY',
+                        style: GoogleFonts.inter(
                           color: KairosTheme.priorityColor(inv.priority),
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ],
@@ -115,40 +123,50 @@ class _InvestigationDetailBody extends ConsumerWidget {
               ),
             ),
           ],
-          flexibleSpace: FlexibleSpaceBar(
-            background: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [KairosTheme.deepNavy, KairosTheme.navyBlue],
-                ),
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        inv.title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      if (inv.releaseStart != null)
-                        Text(
-                          'Satellite Time: ${DateFormat('dd MMM yyyy, HH:mm').format(inv.releaseStart!)} UTC',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 12,
+          flexibleSpace: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+              child: FlexibleSpaceBar(
+                background: Container(
+                  color: Colors.transparent,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            inv.title.split(' — ').first,
+                            style: GoogleFonts.plusJakartaSans(
+                              color: KairosTheme.primaryNavy,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                    ],
+                          const SizedBox(height: 6),
+                          Text(
+                            investigationId,
+                            style: GoogleFonts.inter(
+                              color: KairosTheme.textSecondary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          if (inv.releaseStart != null)
+                            Text(
+                              'SATELLITE TIME: ${DateFormat('dd MMM yyyy, HH:mm').format(inv.releaseStart!)} UTC',
+                              style: GoogleFonts.inter(
+                                color: KairosTheme.primaryNavy.withOpacity(0.8),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -200,17 +218,17 @@ class _DetailTabContentState extends State<_DetailTabContent>
       children: [
         // Tab bar
         Container(
-          color: KairosTheme.navyBlue,
+          color: Colors.transparent,
           child: TabBar(
             controller: _tabController,
-            indicatorColor: Colors.white,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white54,
-            labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            indicatorColor: KairosTheme.primaryNavy,
+            labelColor: KairosTheme.primaryNavy,
+            unselectedLabelColor: KairosTheme.primaryNavy.withOpacity(0.5),
+            labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 0.5),
             tabs: const [
-              Tab(text: 'Overview'),
-              Tab(text: 'Map'),
-              Tab(text: 'Notes'),
+              Tab(text: 'OVERVIEW'),
+              Tab(text: 'MAP'),
+              Tab(text: 'NOTES'),
             ],
           ),
         ),
@@ -247,49 +265,71 @@ class _OverviewTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Satellite image placeholder
-          Container(
-            width: double.infinity,
-            height: 160,
-            decoration: BoxDecoration(
-              color: KairosTheme.deepNavy,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Stack(
-              children: [
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.satellite_alt_rounded,
-                          color: Colors.white.withOpacity(0.3), size: 48),
-                      const SizedBox(height: 8),
-                      Text(
-                        'SAR Satellite Image',
-                        style: TextStyle(
-                            color: Colors.white.withOpacity(0.5), fontSize: 12),
-                      ),
-                    ],
-                  ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Container(
+                width: double.infinity,
+                height: 180,
+                decoration: BoxDecoration(
+                  color: KairosTheme.surfaceWhite.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: KairosTheme.surfaceWhite.withOpacity(0.4), width: 1.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: KairosTheme.primaryNavy.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                // Confidence badge
-                if (inv.detectionConfidence != null)
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        'Confidence: ${(inv.detectionConfidence! * 100).toStringAsFixed(0)}%',
-                        style: const TextStyle(color: Colors.white, fontSize: 11),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.satellite_alt_rounded,
+                              color: KairosTheme.primaryNavy.withOpacity(0.6), size: 48),
+                          const SizedBox(height: 12),
+                          Text(
+                            'SAR Satellite Image',
+                            style: GoogleFonts.inter(
+                              color: KairosTheme.primaryNavy.withOpacity(0.8),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-              ],
+                    // Confidence badge
+                    if (inv.detectionConfidence != null)
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: KairosTheme.primaryNavy.withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'CONFIDENCE: ${(inv.detectionConfidence! * 100).toStringAsFixed(0)}%',
+                            style: GoogleFonts.inter(
+                              color: KairosTheme.surfaceWhite,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -299,18 +339,19 @@ class _OverviewTab extends StatelessWidget {
             _InfoCard(
               icon: Icons.radar,
               iconColor: KairosTheme.saffron,
-              title: 'Probable Investigation Area',
+              title: 'PROBABLE INVESTIGATION AREA',
               subtitle: 'Approx. ${inv.sourceUncertaintyKm!.toStringAsFixed(1)} km radius',
             ),
           const SizedBox(height: 12),
 
           // Key Information section
-          const Text(
-            'Key Information',
-            style: TextStyle(
-              fontSize: 15,
+          Text(
+            'KEY INFORMATION',
+            style: GoogleFonts.inter(
+              fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: KairosTheme.textPrimary,
+              color: KairosTheme.textSecondary,
+              letterSpacing: 1.0,
             ),
           ),
           const SizedBox(height: 12),
@@ -318,7 +359,7 @@ class _OverviewTab extends StatelessWidget {
           if (inv.releaseStart != null && inv.releaseEnd != null)
             _KeyInfoRow(
               icon: Icons.schedule_outlined,
-              label: 'Estimated Time Window',
+              label: 'ESTIMATED TIME WINDOW',
               value:
                   '${DateFormat('HH:mm').format(inv.releaseStart!)} – ${DateFormat('HH:mm UTC').format(inv.releaseEnd!)}',
             ),
@@ -326,73 +367,67 @@ class _OverviewTab extends StatelessWidget {
           if (inv.modelConditions?.windSpeedKn != null)
             _KeyInfoRow(
               icon: Icons.air,
-              label: 'Weather (Approx.)',
-              value: inv.modelConditions!.windSummary,
+              label: 'WEATHER (APPROX)',
+              value: inv.modelConditions!.windSummary.toUpperCase(),
             ),
 
           _KeyInfoRow(
             icon: Icons.directions_boat_outlined,
-            label: 'Candidate Vessels',
-            value: '${inv.candidateVessels.length} vessel${inv.candidateVessels.length != 1 ? 's' : ''} identified',
+            label: 'CANDIDATE VESSELS',
+            value: '${inv.candidateVessels.length} vessel${inv.candidateVessels.length != 1 ? 's' : ''} identified'.toUpperCase(),
           ),
 
           if (inv.detectionAreaKm2 != null)
             _KeyInfoRow(
               icon: Icons.layers_outlined,
-              label: 'Estimated Slick Area',
-              value: '${inv.detectionAreaKm2!.toStringAsFixed(1)} km²',
+              label: 'ESTIMATED SLICK AREA',
+              value: '${inv.detectionAreaKm2!.toStringAsFixed(1)} KM²',
             ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // Candidate vessels
           if (inv.candidateVessels.isNotEmpty) ...[
-            const Text(
-              'Candidate Vessels',
-              style: TextStyle(
-                fontSize: 15,
+            Text(
+              'CANDIDATE VESSELS',
+              style: GoogleFonts.inter(
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: KairosTheme.textPrimary,
+                color: KairosTheme.textSecondary,
+                letterSpacing: 1.0,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Ranked by evidence compatibility. These are candidates, not confirmed polluters.',
-              style: TextStyle(fontSize: 11, color: KairosTheme.textSecondary),
+            Text(
+              'Ranked by evidence compatibility. Candidates only.',
+              style: GoogleFonts.inter(fontSize: 11, color: KairosTheme.textSecondary),
             ),
             const SizedBox(height: 12),
             ...inv.candidateVessels.map(
               (v) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.only(bottom: 12),
                 child: _CandidateVesselCard(vessel: v),
               ),
             ),
           ],
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // Primary CTA — Navigate to Area
-          ElevatedButton.icon(
-            onPressed: () => context.push('/map',
-                extra: {'investigationId': investigation.id}),
-            icon: const Icon(Icons.navigation_outlined),
-            label: const Text('NAVIGATE TO AREA'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: KairosTheme.oceanBlue,
-              minimumSize: const Size(double.infinity, 54),
-            ),
+          KairosActionButton(
+            label: 'NAVIGATE TO AREA',
+            icon: Icons.navigation_rounded,
+            color: KairosTheme.oceanBlue,
+            onPressed: () => context.push('/map', extra: {'investigationId': investigation.id}),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // Start Inspection CTA
-          ElevatedButton.icon(
+          KairosActionButton(
+            label: 'START FIELD INSPECTION',
+            icon: Icons.assignment_rounded,
+            color: KairosTheme.teal,
             onPressed: () => context.push('/investigations/${investigation.id}/inspect'),
-            icon: const Icon(Icons.assignment_outlined),
-            label: const Text('START FIELD INSPECTION'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: KairosTheme.teal,
-              minimumSize: const Size(double.infinity, 54),
-            ),
           ),
           const SizedBox(height: 60),
         ],
@@ -416,14 +451,25 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: KairosTheme.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: KairosTheme.borderGrey),
-      ),
-      child: Row(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(KairosTheme.radius12),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: KairosTheme.surfaceWhite.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(KairosTheme.radius12),
+            border: Border.all(color: KairosTheme.surfaceWhite.withOpacity(0.4), width: 1.0),
+            boxShadow: [
+              BoxShadow(
+                color: KairosTheme.primaryNavy.withOpacity(0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
         children: [
           Container(
             width: 36,
@@ -440,17 +486,20 @@ class _InfoCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 13)),
+                    style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w700, fontSize: 11, letterSpacing: 0.5)),
+                const SizedBox(height: 4),
                 Text(subtitle,
-                    style: const TextStyle(
-                        fontSize: 12, color: KairosTheme.textSecondary)),
+                    style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14, color: KairosTheme.primaryNavy, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 }
 
@@ -478,11 +527,11 @@ class _KeyInfoRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style: const TextStyle(
-                        fontSize: 11, color: KairosTheme.textSecondary)),
+                    style: GoogleFonts.inter(
+                        fontSize: 10, color: KairosTheme.textSecondary, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
                 Text(value,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600)),
+                    style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14, fontWeight: FontWeight.w700, color: KairosTheme.primaryNavy)),
               ],
             ),
           ),
@@ -501,24 +550,36 @@ class _CandidateVesselCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final compatColor = KairosTheme.compatibilityColor(vessel.compatibility);
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: KairosTheme.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: KairosTheme.borderGrey),
-      ),
-      child: Column(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(KairosTheme.radius12),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: KairosTheme.surfaceWhite.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(KairosTheme.radius12),
+            border: Border.all(color: KairosTheme.surfaceWhite.withOpacity(0.4), width: 1.0),
+            boxShadow: [
+              BoxShadow(
+                color: KairosTheme.primaryNavy.withOpacity(0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Text(
-                'Candidate #${vessel.rank}',
-                style: const TextStyle(
+                'CANDIDATE #${vessel.rank}',
+                style: GoogleFonts.inter(
                   fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                  color: KairosTheme.textPrimary,
+                  fontSize: 11,
+                  letterSpacing: 0.5,
+                  color: KairosTheme.primaryNavy,
                 ),
               ),
               const Spacer(),
@@ -529,25 +590,26 @@ class _CandidateVesselCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  'Compatibility: ${vessel.compatibility}',
-                  style: TextStyle(
+                  'COMPATIBILITY: ${vessel.compatibility}',
+                  style: GoogleFonts.inter(
                     color: compatColor,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             vessel.name,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700, color: KairosTheme.primaryNavy),
           ),
           Text(
-            '${vessel.vesselType} · MMSI ${vessel.mmsi}',
-            style: const TextStyle(
-                fontSize: 11, color: KairosTheme.textSecondary),
+            '${vessel.vesselType.toUpperCase()} · MMSI ${vessel.mmsi}',
+            style: GoogleFonts.inter(
+                fontSize: 12, color: KairosTheme.textSecondary, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 10),
           // Evidence scores
@@ -573,7 +635,9 @@ class _CandidateVesselCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 }
 

@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -21,22 +22,24 @@ class InvestigationCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: KairosTheme.cardWhite,
-          borderRadius: BorderRadius.circular(KairosTheme.radius16),
-          border: Border.all(color: KairosTheme.borderGrey, width: 0.5),
-          boxShadow: [
-            BoxShadow(
-              color: KairosTheme.textPrimary.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(KairosTheme.radius12),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: KairosTheme.surfaceWhite.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(KairosTheme.radius12),
+              border: Border.all(color: KairosTheme.surfaceWhite.withOpacity(0.4), width: 1.0),
+              boxShadow: [
+                BoxShadow(
+                  color: KairosTheme.primaryNavy.withOpacity(0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(KairosTheme.radius16),
-          child: IntrinsicHeight(
+            child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -61,7 +64,7 @@ class InvestigationCard extends StatelessWidget {
                               style: GoogleFonts.inter(
                                 color: KairosTheme.textMuted,
                                 fontSize: 11,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -73,7 +76,7 @@ class InvestigationCard extends StatelessWidget {
                           _getTitle(item),
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: KairosTheme.textPrimary,
                           ),
                         ),
@@ -82,27 +85,29 @@ class InvestigationCard extends StatelessWidget {
                         // Location & Date
                         Row(
                           children: [
-                            const Icon(Icons.location_on_outlined, size: 14, color: KairosTheme.secondaryBlue),
-                            const SizedBox(width: 4),
+                            Icon(Icons.location_on_outlined, size: 14, color: KairosTheme.oceanBlue),
+                            const SizedBox(width: 6),
                             Text(
-                              _getRegion(item.id),
+                              _getRegion(item.id).toUpperCase(),
                               style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                                 color: KairosTheme.textSecondary,
+                                letterSpacing: 0.5,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: KairosTheme.spacing8),
+                        const SizedBox(height: 6),
                         Row(
                           children: [
                             const Icon(Icons.access_time_rounded, size: 14, color: KairosTheme.textMuted),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6),
                             Text(
                               '$dateStr UTC',
                               style: GoogleFonts.inter(
-                                fontSize: 13,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
                                 color: KairosTheme.textSecondary,
                               ),
                             ),
@@ -115,16 +120,17 @@ class InvestigationCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Field inspection pending',
+                              'FIELD INSPECTION PENDING',
                               style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: KairosTheme.textPrimary,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: KairosTheme.textSecondary,
+                                letterSpacing: 0.5,
                               ),
                             ),
-                            const Icon(
+                            Icon(
                               Icons.arrow_forward_rounded,
-                              size: 18,
+                              size: 16,
                               color: KairosTheme.primaryNavy,
                             ),
                           ],
@@ -138,8 +144,9 @@ class InvestigationCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   String _getTitle(InvestigationListItem item) {
     if (item.priority == 'CRITICAL') return 'Critical Oil Spill Alert';

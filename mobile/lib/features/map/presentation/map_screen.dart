@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/kairos_theme.dart';
 import '../../../core/gps/location_service.dart';
+import '../../../shared/widgets/kairos_app_bar.dart';
+import '../../../shared/widgets/kairos_action_button.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -16,7 +19,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   final _mapController = MapController();
   bool _isNavigating = false;
 
-  // Demo source region (Arabian Sea) — in production comes from investigation
+  // Demo source region (Arabian Sea)
   static const _demoSourceCenter = LatLng(18.9388, 72.9153);
 
   @override
@@ -24,7 +27,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final locationAsync = ref.watch(currentLocationProvider);
 
     return Scaffold(
-      backgroundColor: KairosTheme.deepNavy,
+      backgroundColor: KairosTheme.backgroundLight,
+      appBar: const KairosAppBar(
+        title: 'KAIROS',
+        subtitle: 'Map Operations',
+        showBackButton: false,
+      ),
       body: Stack(
         children: [
           // Map
@@ -37,18 +45,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               maxZoom: 18,
             ),
             children: [
-              // OSM base tiles
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'in.ntro.kairos',
               ),
-
-              // Source region uncertainty circle
               CircleLayer(
                 circles: [
                   CircleMarker(
                     point: _demoSourceCenter,
-                    radius: 5000, // 5 km radius in meters
+                    radius: 5000,
                     color: KairosTheme.saffron.withOpacity(0.15),
                     borderColor: KairosTheme.saffron.withOpacity(0.6),
                     borderStrokeWidth: 2,
@@ -56,8 +61,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   ),
                 ],
               ),
-
-              // Source region polygon (center dot)
               MarkerLayer(
                 markers: [
                   Marker(
@@ -67,29 +70,26 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     child: Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                           decoration: BoxDecoration(
-                            color: KairosTheme.navyBlue,
+                            color: KairosTheme.primaryNavy,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
-                            'Investigation\nArea',
+                          child: Text(
+                            'PROBABLE\nSOURCE',
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
+                            style: GoogleFonts.inter(
+                              color: KairosTheme.surfaceWhite,
                               fontSize: 8,
                               fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ),
-                        const Icon(Icons.location_pin,
-                            color: KairosTheme.saffron, size: 24),
+                        const Icon(Icons.location_pin, color: KairosTheme.saffron, size: 24),
                       ],
                     ),
                   ),
-
-                  // Officer location
                   if (locationAsync.valueOrNull != null)
                     Marker(
                       point: LatLng(
@@ -102,7 +102,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         decoration: BoxDecoration(
                           color: KairosTheme.oceanBlue,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
+                          border: Border.all(color: KairosTheme.surfaceWhite, width: 3),
                           boxShadow: [
                             BoxShadow(
                               color: KairosTheme.oceanBlue.withOpacity(0.4),
@@ -111,8 +111,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.navigation,
-                            color: Colors.white, size: 18),
+                        child: const Icon(Icons.navigation, color: KairosTheme.surfaceWhite, size: 18),
                       ),
                     ),
                 ],
@@ -120,64 +119,60 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ],
           ),
 
-          // App bar overlay
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  // Layers button
-                  _MapButton(
-                    icon: Icons.layers_outlined,
-                    onTap: () {},
-                  ),
-                  const Spacer(),
-                  // Recenter button
-                  _MapButton(
-                    icon: Icons.my_location,
-                    onTap: () async {
-                      final loc = locationAsync.valueOrNull;
-                      if (loc != null) {
-                        _mapController.move(
-                          LatLng(loc.latitude, loc.longitude),
-                          12,
-                        );
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  // Navigate to source
-                  _MapButton(
-                    icon: Icons.navigation_outlined,
-                    onTap: () {
-                      _mapController.move(_demoSourceCenter, 10);
-                    },
-                  ),
-                ],
-              ),
+          // Floating Action Buttons for Map Control
+          Positioned(
+            top: 16,
+            right: 16,
+            child: Column(
+              children: [
+                _MapButton(
+                  icon: Icons.layers_outlined,
+                  onTap: () {},
+                ),
+                const SizedBox(height: KairosTheme.spacing12),
+                _MapButton(
+                  icon: Icons.my_location,
+                  onTap: () async {
+                    final loc = locationAsync.valueOrNull;
+                    if (loc != null) {
+                      _mapController.move(LatLng(loc.latitude, loc.longitude), 12);
+                    }
+                  },
+                ),
+                const SizedBox(height: KairosTheme.spacing12),
+                _MapButton(
+                  icon: Icons.navigation_outlined,
+                  onTap: () {
+                    _mapController.move(_demoSourceCenter, 10);
+                  },
+                ),
+              ],
             ),
           ),
 
           // GPS accuracy warning
           if (locationAsync.valueOrNull?.isAccuracyPoor == true)
             Positioned(
-              top: 80,
-              left: 12,
-              right: 12,
+              top: 16,
+              left: 16,
+              right: 72,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: KairosTheme.warning.withOpacity(0.95),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(KairosTheme.radius8),
+                  boxShadow: [
+                    BoxShadow(color: KairosTheme.textPrimary.withOpacity(0.1), blurRadius: 4),
+                  ],
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.gps_not_fixed, color: Colors.white, size: 16),
+                    const Icon(Icons.gps_not_fixed, color: KairosTheme.surfaceWhite, size: 16),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'GPS accuracy: ±${locationAsync.valueOrNull!.accuracy!.toStringAsFixed(0)}m — Low accuracy. Wait for better signal.',
-                        style: const TextStyle(color: Colors.white, fontSize: 11),
+                        'GPS accuracy: ±${locationAsync.valueOrNull!.accuracy!.toStringAsFixed(0)}m — Low accuracy.',
+                        style: GoogleFonts.inter(color: KairosTheme.surfaceWhite, fontSize: 11, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -191,23 +186,23 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             left: 0,
             right: 0,
             child: Container(
-              margin: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: KairosTheme.white,
-                borderRadius: BorderRadius.circular(16),
+                color: KairosTheme.surfaceWhite,
+                borderRadius: BorderRadius.circular(KairosTheme.radius12),
+                border: Border.all(color: KairosTheme.borderGrey, width: 1),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
-                    blurRadius: 20,
-                    offset: const Offset(0, -4),
+                    color: KairosTheme.textPrimary.withOpacity(0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Distance / Bearing display
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -264,22 +259,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  ElevatedButton.icon(
+                  const SizedBox(height: 20),
+                  KairosActionButton(
+                    label: _isNavigating ? 'STOP NAVIGATION' : 'NAVIGATE',
+                    icon: _isNavigating ? Icons.stop_rounded : Icons.navigation_rounded,
+                    color: _isNavigating ? KairosTheme.error : KairosTheme.oceanBlue,
                     onPressed: () => setState(() => _isNavigating = !_isNavigating),
-                    icon: Icon(
-                      _isNavigating ? Icons.stop : Icons.navigation,
-                      size: 18,
-                    ),
-                    label: Text(
-                      _isNavigating ? 'STOP NAVIGATION' : 'START NAVIGATION',
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isNavigating
-                          ? KairosTheme.error
-                          : KairosTheme.oceanBlue,
-                      minimumSize: const Size(double.infinity, 48),
-                    ),
                   ),
                 ],
               ),
@@ -302,19 +287,21 @@ class _MapButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40,
-        height: 40,
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
-          color: KairosTheme.white,
-          shape: BoxShape.circle,
+          color: KairosTheme.surfaceWhite,
+          borderRadius: BorderRadius.circular(KairosTheme.radius8),
+          border: Border.all(color: KairosTheme.borderGrey, width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
-              blurRadius: 8,
+              color: KairosTheme.textPrimary.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Icon(icon, color: KairosTheme.textPrimary, size: 20),
+        child: Icon(icon, color: KairosTheme.primaryNavy, size: 20),
       ),
     );
   }
@@ -332,20 +319,20 @@ class _NavStat extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 9,
+          style: GoogleFonts.inter(
+            fontSize: 10,
             fontWeight: FontWeight.w700,
-            color: KairosTheme.textMuted,
-            letterSpacing: 1.2,
+            color: KairosTheme.textSecondary,
+            letterSpacing: 1.0,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: KairosTheme.textPrimary,
+            fontWeight: FontWeight.w700,
+            color: KairosTheme.primaryNavy,
           ),
         ),
       ],

@@ -4,8 +4,9 @@ import { AppError } from '../middleware/errorHandler';
 import { isSupervisorOrAdmin } from '../middleware/authorize';
 import { AuthenticatedRequest } from '../middleware/authenticate';
 import { parsePagination, buildPaginationMeta } from '../utils/pagination';
-import { UserRole } from '../models/User';
+import { User, UserRole } from '../models/User';
 import mongoose from 'mongoose';
+import { NotificationService } from './NotificationService';
 
 export interface InvestigationListQuery {
   page?: string;
@@ -161,7 +162,7 @@ export class InvestigationService {
       throw new AppError(409, 'ALREADY_ASSIGNED', 'Officer is already assigned to this investigation.');
     }
 
-    return InvestigationAssignment.create({
+    const assignment = await InvestigationAssignment.create({
       fastApiInvestigationId,
       officerId: new mongoose.Types.ObjectId(officerId),
       assignedBy: new mongoose.Types.ObjectId(assignedById),
@@ -169,6 +170,18 @@ export class InvestigationService {
       priority: priority.toUpperCase(),
       notes,
     });
+
+    const officer = await User.findById(officerId).select('fcmToken name').lean();
+    if (officer?.fcmToken) {
+      await NotificationService.sendPushNotification(
+        officer.fcmToken,
+        'New Investigation Assigned',
+        `Hello ${officer.name}, you have been assigned a new investigation.`,
+        { investigationId: fastApiInvestigationId }
+      );
+    }
+
+    return assignment;
   }
 
   async getMapData(fastApiInvestigationId: string) {

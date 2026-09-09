@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/storage/secure_storage_service.dart';
 import '../domain/auth_state.dart';
+import 'package:flutter/foundation.dart';
+import '../../../core/services/push_notification_service.dart';
 
 class AuthRepository {
   final Dio _dio;
@@ -37,7 +39,7 @@ class AuthRepository {
           as String? ?? 'Login failed. Please try again.';
       return AuthState.error(message);
     } catch (e) {
-      return AuthState.error('An unexpected error occurred.');
+      return const AuthState.error('An unexpected error occurred.');
     }
   }
 
@@ -66,6 +68,13 @@ class AuthRepository {
       await SecureStorageService.clearAll();
     }
   }
+  Future<void> updateFcmToken(String fcmToken) async {
+    try {
+      await _dio.put('/auth/fcm-token', data: {'fcmToken': fcmToken});
+    } catch (e) {
+      debugPrint('Failed to update FCM token: $e');
+    }
+  }
 }
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -79,12 +88,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> initialize() async {
     state = const AuthState.loading();
-    state = await _repository.restoreSession();
+    final restoredState = await _repository.restoreSession();
+    state = restoredState;
+    if (restoredState.isAuthenticated) {
+      await _syncFcmToken();
+    }
   }
 
   Future<void> login(String identifier, String password) async {
     state = const AuthState.loading();
-    state = await _repository.login(identifier, password);
+    final loginState = await _repository.login(identifier, password);
+    state = loginState;
+    if (loginState.isAuthenticated) {
+      await _syncFcmToken();
+    }
+  }
+
+  Future<void> _syncFcmToken() async {
+    final token = await PushNotificationService.instance.getToken();
+    if (token != null) {
+      await _repository.updateFcmToken(token);
+    }
+    PushNotificationService.instance.onTokenRefresh.listen((newToken) {
+      _repository.updateFcmToken(newToken);
+    });
   }
 
   Future<void> logout() async {

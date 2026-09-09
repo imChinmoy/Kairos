@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { login, refresh, logout, getMe } from '../controllers/auth.controller';
+import { login, refresh, logout, getMe, updateFcmToken } from '../controllers/auth.controller';
 import { authenticateUser } from '../middleware/authenticate';
 import { authLimiter } from '../middleware/rateLimiter';
 
@@ -35,5 +35,6 @@ router.post('/login', authLimiter, login);
 router.post('/refresh', refresh);
 router.post('/logout', authenticateUser, logout);
 router.get('/me', authenticateUser, getMe);
+router.put('/fcm-token', authenticateUser, updateFcmToken);
 
 export default router;

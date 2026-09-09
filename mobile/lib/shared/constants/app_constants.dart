@@ -3,8 +3,7 @@ class KairosConstants {
   KairosConstants._();
 
   // API
-  static const String apiBaseUrl = 'http://10.0.2.2:3000'; // Android emulator
-  // static const String apiBaseUrl = 'https://kairos-mobile.onrender.com'; // Production
+  static const String apiBaseUrl = 'https://kairos-mobile.onrender.com';
   static const String apiVersion = '/api/v1';
   static const int apiTimeoutSeconds = 60;
 
