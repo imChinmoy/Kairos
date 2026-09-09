@@ -34,6 +34,11 @@ class InvestigationRepository {
     );
   }
 
+  Future<Map<String, dynamic>> getRawInvestigation(String id) async {
+    final response = await _dio.get('/investigations/$id');
+    return response.data['data'] as Map<String, dynamic>;
+  }
+
   Future<Map<String, dynamic>> getMapData(String id) async {
     final response = await _dio.get('/investigations/$id/map');
     return response.data['data'] as Map<String, dynamic>;

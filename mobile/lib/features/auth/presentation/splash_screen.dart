@@ -18,6 +18,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnim;
   late Animation<double> _scaleAnim;
+  bool _minTimeElapsed = false;
 
   @override
   void initState() {
@@ -33,6 +34,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
     _controller.forward();
+
+    // Enforce a minimum splash duration of 2.5 seconds so the animation can play fully
+    Future.delayed(const Duration(milliseconds: 5000), () {
+      if (mounted) {
+        setState(() => _minTimeElapsed = true);
+        _navigateIfReady();
+      }
+    });
+  }
+
+  void _navigateIfReady() {
+    if (!mounted) return;
+    final authState = ref.read(authProvider);
+    if (!authState.isLoading && _minTimeElapsed) {
+      if (authState.isAuthenticated) {
+        context.go('/home');
+      } else {
+        context.go('/login');
+      }
+    }
   }
 
   @override
@@ -44,13 +65,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   Widget build(BuildContext context) {
     ref.listen(authProvider, (prev, next) {
-      if (!next.isLoading) {
-        if (next.isAuthenticated) {
-          context.go('/home');
-        } else {
-          context.go('/login');
-        }
-      }
+      _navigateIfReady();
     });
 
     return Scaffold(

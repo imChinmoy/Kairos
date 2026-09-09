@@ -27,6 +27,11 @@ class InvestigationDetailScreen extends ConsumerWidget {
     return KairosAppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => context.push('/investigations/$investigationId/chatbot'),
+          backgroundColor: KairosTheme.primaryNavy,
+          child: Image.asset('assets/icons/bot.png', width: 28, height: 28),
+        ),
         body: investigationAsync.when(
           data: (inv) => _InvestigationDetailBody(investigation: inv),
           loading: () => const Center(child: KairosLoader()),

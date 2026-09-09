@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vibration/vibration.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -90,6 +91,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
     );
 
     if (confirm == true && mounted) {
+      Vibration.vibrate(duration: 1500);
       _pulseController.stop();
       setState(() => _sosSent = true);
 

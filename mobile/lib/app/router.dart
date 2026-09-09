@@ -7,6 +7,7 @@ import '../features/auth/presentation/login_screen.dart';
 import '../features/dashboard/presentation/home_screen.dart';
 import '../features/investigations/presentation/investigation_list_screen.dart';
 import '../features/investigations/presentation/investigation_detail_screen.dart';
+import '../features/investigations/presentation/chatbot_screen.dart';
 import '../features/map/presentation/map_screen.dart';
 import '../features/inspection/presentation/inspection_screen.dart';
 import '../features/inspection/presentation/observation_screen.dart';
@@ -79,6 +80,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/investigations/:id/inspect',
         builder: (_, state) => InspectionScreen(
+          investigationId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: '/investigations/:id/chatbot',
+        builder: (_, state) => ChatbotScreen(
           investigationId: state.pathParameters['id']!,
         ),
       ),
