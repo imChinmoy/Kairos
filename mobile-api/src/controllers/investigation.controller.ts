@@ -95,15 +95,19 @@ export async function getInvestigation(req: AuthenticatedRequest, res: Response)
   sendSuccess(res, {
     id,
     fastApiStatus: investigation.status,
+    investigationDetails: investigation,
     observation: obs ? {
-      timestamp: obs.timestamp,
-      sensor: obs.sensor,
+      ...obs,
     } : null,
     detection: detection ? {
-      detected: detection.detected,
-      confidence: detection.confidence,
+      ...detection,
       areaKm2: detection.area_km2,
-      geometry: detection.geometry,
+    } : null,
+    reconstruction: reconstruction ? {
+      ...reconstruction,
+    } : null,
+    environment: env ? {
+      ...env,
     } : null,
     sourceRegion: reconstruction?.source_region || null,
     targetLocation: calculateCentroid(reconstruction?.source_region),
@@ -120,6 +124,7 @@ export async function getInvestigation(req: AuthenticatedRequest, res: Response)
       currentDirection: env.current_direction,
     } : null,
     candidateVessels: candidates.map((c) => ({
+      ...c,
       rank: c.rank,
       vesselId: c.vessel.vessel_id,
       name: c.vessel.name,
