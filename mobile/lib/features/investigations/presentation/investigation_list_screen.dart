@@ -6,6 +6,7 @@ import '../../../app/theme/kairos_theme.dart';
 import '../../../shared/widgets/kairos_app_background.dart';
 import '../../../shared/widgets/kairos_app_bar.dart';
 import '../../../shared/widgets/investigation_card.dart';
+import '../../../shared/widgets/kairos_loader.dart';
 
 class InvestigationListScreen extends ConsumerWidget {
   const InvestigationListScreen({super.key});
@@ -32,7 +33,7 @@ class InvestigationListScreen extends ConsumerWidget {
               onTap: () => context.push('/investigations/${list[i].id}'),
             ),
           ),
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: KairosLoader()),
           error: (e, _) => Center(child: Text(e.toString(), style: TextStyle(color: Colors.white))),
         ),
       ),

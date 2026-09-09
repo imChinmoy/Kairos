@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/kairos_theme.dart';
+import '../../../app/theme/kairos_theme.dart';
+import '../../../shared/widgets/kairos_loader.dart';
 import '../data/inspection_repository.dart';
 
 class ObservationScreen extends ConsumerStatefulWidget {
@@ -209,10 +211,7 @@ class _ObservationScreenState extends ConsumerState<ObservationScreen> {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
+                      child: KairosLoader(size: 18),
                     )
                   : const Icon(Icons.add_task, size: 20),
               label: Text(_isSubmitting ? 'Logging...' : 'LOG OBSERVATION'),

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../app/theme/kairos_theme.dart';
+import '../../../shared/widgets/kairos_app_bar.dart';
+import '../../../shared/widgets/kairos_loader.dart';
 import '../data/report_repository.dart';
 import '../domain/report_model.dart';
+import '../services/pdf_service.dart';
 
 class ReportScreen extends ConsumerWidget {
   const ReportScreen({super.key});
@@ -13,10 +17,9 @@ class ReportScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: KairosTheme.offWhite,
-      appBar: AppBar(
-        title: const Text('Inspection Reports'),
-        backgroundColor: KairosTheme.navyBlue,
-        foregroundColor: Colors.white,
+      appBar: const KairosAppBar(
+        title: 'INSPECTION REPORTS',
+        showBackButton: false,
       ),
       body: reportsAsync.when(
         data: (reports) {
@@ -60,7 +63,7 @@ class ReportScreen extends ConsumerWidget {
             ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: KairosLoader()),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );
@@ -216,9 +219,7 @@ class _ReportCard extends StatelessWidget {
             children: [
               OutlinedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Report details view coming soon.')),
-                  );
+                  context.push('/reports/${report.id}', extra: report);
                 },
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(0, 36),
@@ -228,10 +229,8 @@ class _ReportCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               OutlinedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Generating PDF... PDF saved and shared.')),
-                  );
+                onPressed: () async {
+                  await PdfService.generateAndSharePdf(report);
                 },
                 icon: const Icon(Icons.share_outlined, size: 14),
                 label: const Text('Share', style: TextStyle(fontSize: 12)),

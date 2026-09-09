@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/theme/kairos_theme.dart';
 import '../../../core/gps/location_service.dart';
 import '../../../shared/widgets/kairos_app_bar.dart';
+import '../../../shared/widgets/kairos_loader.dart';
 import '../../investigations/data/investigation_repository.dart';
 import '../../investigations/domain/investigation_model.dart';
 import '../../../shared/widgets/kairos_action_button.dart';
@@ -61,7 +62,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 .when(
                   data: (inv) => _buildMapContent(inv, locationAsync),
                   loading: () =>
-                      const Center(child: CircularProgressIndicator()),
+                      const Center(child: KairosLoader()),
                   error: (e, _) =>
                       Center(child: Text('Error loading details: $e')),
                 )

@@ -7,7 +7,9 @@ import '../../../app/theme/kairos_theme.dart';
 import '../../../core/camera/camera_service.dart';
 import '../../../core/gps/location_service.dart';
 import '../data/evidence_repository.dart';
+import '../data/evidence_repository.dart';
 import '../../../shared/widgets/kairos_app_background.dart';
+import '../../../shared/widgets/kairos_loader.dart';
 
 class EvidenceCaptureScreen extends ConsumerStatefulWidget {
   final String inspectionId;
@@ -139,8 +141,7 @@ class _EvidenceCaptureScreenState extends ConsumerState<EvidenceCaptureScreen> {
                       ? const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: KairosTheme.surfaceWhite),
+                          child: KairosLoader(size: 16),
                         )
                       : Text(
                           'SYNC ALL',
@@ -291,8 +292,7 @@ class _EvidenceCaptureScreenState extends ConsumerState<EvidenceCaptureScreen> {
                                 ? const SizedBox(
                                     width: 24,
                                     height: 24,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2.5, color: KairosTheme.surfaceWhite),
+                                    child: KairosLoader(size: 24),
                                   )
                                 : const Icon(Icons.camera_alt_rounded,
                                     color: KairosTheme.surfaceWhite, size: 28),

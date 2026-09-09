@@ -31,7 +31,7 @@ class InvestigationCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: KairosTheme.surfaceWhite.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(KairosTheme.radius12),
-              border: Border.all(color: KairosTheme.surfaceWhite.withValues(alpha: 0.4), width: 1.0),
+              border: Border.all(color: KairosTheme.primaryNavy.withValues(alpha: 0.15), width: 1.5),
               boxShadow: [
                 BoxShadow(
                   color: KairosTheme.primaryNavy.withValues(alpha: 0.05),

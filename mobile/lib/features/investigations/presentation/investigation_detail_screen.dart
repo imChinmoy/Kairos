@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/kairos_theme.dart';
+import '../../../shared/widgets/kairos_loader.dart';
 import '../data/investigation_repository.dart';
 import '../domain/investigation_model.dart';
 import '../../../shared/widgets/kairos_action_button.dart';
@@ -28,7 +29,7 @@ class InvestigationDetailScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         body: investigationAsync.when(
           data: (inv) => _InvestigationDetailBody(investigation: inv),
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: KairosLoader()),
           error: (err, _) => Center(
             child: Padding(
               padding: const EdgeInsets.all(24),

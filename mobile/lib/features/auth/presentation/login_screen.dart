@@ -157,19 +157,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       Text(
                         'KAIROS',
                         style: GoogleFonts.plusJakartaSans(
-                          color: KairosTheme.cardWhite,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
+                          color: KairosTheme.primaryNavy,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
                           letterSpacing: 3,
+                          shadows: [
+                            Shadow(color: KairosTheme.surfaceWhite.withValues(alpha: 0.8), blurRadius: 10),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         'Field Investigation Platform',
                         style: GoogleFonts.inter(
-                          color: KairosTheme.cardWhite.withOpacity(0.8),
+                          color: KairosTheme.primaryNavy.withValues(alpha: 0.8),
                           fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -187,10 +190,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(KairosTheme.spacing24),
                         decoration: BoxDecoration(
-                          color: KairosTheme.surfaceWhite.withValues(alpha: 0.85),
+                          color: KairosTheme.surfaceWhite.withValues(alpha: 0.65),
                           borderRadius: BorderRadius.circular(24.0),
                           border: Border.all(
-                            color: KairosTheme.surfaceWhite.withValues(alpha: 0.5),
+                            color: KairosTheme.surfaceWhite.withValues(alpha: 0.9),
+                            width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
@@ -273,16 +277,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             prefixIcon: const Icon(Icons.badge_outlined,
                                 color: KairosTheme.textSecondary, size: 20),
                             filled: true,
-                            fillColor: KairosTheme.cardWhite,
+                            fillColor: KairosTheme.surfaceWhite.withValues(alpha: 0.9),
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: KairosTheme.spacing16, vertical: 16),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(KairosTheme.radius12),
-                              borderSide: const BorderSide(color: KairosTheme.borderGrey),
+                              borderSide: BorderSide(color: KairosTheme.primaryNavy.withValues(alpha: 0.15)),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(KairosTheme.radius12),
-                              borderSide: const BorderSide(color: KairosTheme.borderGrey),
+                              borderSide: BorderSide(color: KairosTheme.primaryNavy.withValues(alpha: 0.15)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(KairosTheme.radius12),
@@ -325,16 +329,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   setState(() => _obscurePassword = !_obscurePassword),
                             ),
                             filled: true,
-                            fillColor: KairosTheme.cardWhite,
+                            fillColor: KairosTheme.surfaceWhite.withValues(alpha: 0.9),
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: KairosTheme.spacing16, vertical: 16),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(KairosTheme.radius12),
-                              borderSide: const BorderSide(color: KairosTheme.borderGrey),
+                              borderSide: BorderSide(color: KairosTheme.primaryNavy.withValues(alpha: 0.15)),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(KairosTheme.radius12),
-                              borderSide: const BorderSide(color: KairosTheme.borderGrey),
+                              borderSide: BorderSide(color: KairosTheme.primaryNavy.withValues(alpha: 0.15)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(KairosTheme.radius12),
@@ -362,7 +366,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               backgroundColor: KairosTheme.primaryNavy,
                               disabledBackgroundColor:
                                   KairosTheme.primaryNavy.withOpacity(0.5),
-                              elevation: 0,
+                              elevation: 6,
+                              shadowColor: KairosTheme.primaryNavy.withValues(alpha: 0.6),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(KairosTheme.radius12),
                               ),

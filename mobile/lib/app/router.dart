@@ -13,6 +13,8 @@ import '../features/inspection/presentation/observation_screen.dart';
 import '../features/evidence/presentation/evidence_capture_screen.dart';
 import '../features/sos/presentation/sos_screen.dart';
 import '../features/reports/presentation/report_screen.dart';
+import '../features/reports/presentation/inspection_report_detail_screen.dart';
+import '../features/reports/domain/report_model.dart';
 import 'shell/main_shell.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -91,6 +93,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => EvidenceCaptureScreen(
           inspectionId: state.pathParameters['id']!,
           investigationId: state.uri.queryParameters['invId'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: '/reports/:id',
+        builder: (_, state) => InspectionReportDetailScreen(
+          report: state.extra as InspectionReportModel,
         ),
       ),
     ],
