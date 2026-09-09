@@ -15,7 +15,8 @@ class InvestigationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final priorityColor = KairosTheme.priorityColor(item.priority);
+    final isCompleted = item.assignmentStatus == 'COMPLETED' || item.assignmentStatus == 'FIELD_INSPECTED';
+    final priorityColor = isCompleted ? KairosTheme.success : KairosTheme.priorityColor(item.priority);
     final dateStr = item.assignedAt != null
         ? DateFormat('dd MMM yyyy • HH:mm').format(item.assignedAt!)
         : 'Unknown Date';
@@ -176,14 +177,14 @@ class InvestigationCard extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.radar_rounded, size: 14, color: KairosTheme.oceanBlue),
+                              Icon(isCompleted ? Icons.check_circle_outline_rounded : Icons.radar_rounded, size: 14, color: isCompleted ? KairosTheme.success : KairosTheme.oceanBlue),
                               const SizedBox(width: 6),
                               Text(
-                                'AWAITING INSPECTION',
+                                isCompleted ? 'INSPECTION COMPLETE' : 'AWAITING INSPECTION',
                                 style: GoogleFonts.inter(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
-                                  color: KairosTheme.oceanBlue,
+                                  color: isCompleted ? KairosTheme.success : KairosTheme.oceanBlue,
                                   letterSpacing: 0.5,
                                 ),
                               ),

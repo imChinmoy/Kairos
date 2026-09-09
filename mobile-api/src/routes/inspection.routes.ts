@@ -8,6 +8,7 @@ import {
   getObservations,
   updateObservation,
   deleteObservation,
+  getMyInspections,
 } from '../controllers/inspection.controller';
 import { uploadEvidence, listEvidence } from '../controllers/evidence.controller';
 import { evidenceUpload } from '../services/EvidenceService';
@@ -19,6 +20,19 @@ const router = Router();
 router.use(authenticateUser);
 
 // Inspection CRUD
+/**
+ * @swagger
+ * /api/v1/inspections:
+ *   get:
+ *     summary: Get all inspections for the current officer
+ *     tags: [Inspections]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of inspections
+ */
+router.get('/', getMyInspections);
 /**
  * @swagger
  * /api/v1/inspections/{id}:

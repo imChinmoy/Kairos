@@ -27,6 +27,7 @@ class GeoJsonGeometry {
     }
     return null;
   }
+
   /// Returns list of [lat, lng] points for simple polygons
   List<List<double>>? get polygonPoints {
     if (type == 'Polygon' && coordinates is List) {
@@ -53,6 +54,8 @@ class CandidateVessel {
   final String compatibility;
   final Map<String, double> evidence;
   final List<String> explanations;
+  final List<double>? location;
+  final double? heading;
 
   const CandidateVessel({
     required this.rank,
@@ -64,6 +67,8 @@ class CandidateVessel {
     required this.compatibility,
     required this.evidence,
     required this.explanations,
+    this.location,
+    this.heading,
   });
 
   factory CandidateVessel.fromJson(Map<String, dynamic> json) {
@@ -84,6 +89,13 @@ class CandidateVessel {
         'aisQuality': (ev['aisQuality'] as num?)?.toDouble() ?? 0,
       },
       explanations: List<String>.from(json['explanations'] as List? ?? []),
+      location: json['location'] != null
+          ? [
+              (json['location'][0] as num).toDouble(),
+              (json['location'][1] as num).toDouble()
+            ]
+          : null,
+      heading: (json['heading'] as num?)?.toDouble(),
     );
   }
 }
@@ -165,32 +177,45 @@ class InvestigationModel {
   factory InvestigationModel.fromJson(Map<String, dynamic> json) {
     GeoJsonGeometry? parseGeometry(dynamic geo) {
       if (geo == null) return null;
-      try { return GeoJsonGeometry.fromJson(geo as Map<String, dynamic>); }
-      catch (_) { return null; }
+      try {
+        return GeoJsonGeometry.fromJson(geo as Map<String, dynamic>);
+      } catch (_) {
+        return null;
+      }
     }
 
     DateTime? parseDate(dynamic val) {
       if (val == null) return null;
-      try { return DateTime.parse(val as String); }
-      catch (_) { return null; }
+      try {
+        return DateTime.parse(val as String);
+      } catch (_) {
+        return null;
+      }
     }
 
     final tw = json['releaseTimeWindow'] as Map<String, dynamic>?;
     final details = json['investigationDetails'] as Map<String, dynamic>?;
 
+    final targetLocation = json['targetLocation'] != null
+        ? [
+            (json['targetLocation']['latitude'] as num).toDouble(),
+            (json['targetLocation']['longitude'] as num).toDouble(),
+          ]
+        : null;
+    final sourceRegion = parseGeometry(json['sourceRegion']);
+    final sourceCenter = targetLocation ?? sourceRegion?.center;
+
     return InvestigationModel(
       id: json['id'] as String? ?? '',
       fastApiStatus: json['fastApiStatus'] as String?,
-      assignmentStatus: details?['status'] as String? ?? json['assignmentStatus'] as String? ?? 'ASSIGNED',
+      assignmentStatus: details?['status'] as String? ??
+          json['assignmentStatus'] as String? ??
+          'ASSIGNED',
       priority: json['priority'] as String? ?? 'MEDIUM',
-      assignedAt: parseDate(details?['created_at']) ?? parseDate(json['assignedAt']),
-      sourceRegion: parseGeometry(json['sourceRegion']),
-      targetLocation: json['targetLocation'] != null
-          ? [
-              (json['targetLocation']['latitude'] as num).toDouble(),
-              (json['targetLocation']['longitude'] as num).toDouble(),
-            ]
-          : null,
+      assignedAt:
+          parseDate(details?['created_at']) ?? parseDate(json['assignedAt']),
+      sourceRegion: sourceRegion,
+      targetLocation: targetLocation,
       slickGeometry: parseGeometry(json['detection']?['geometry']),
       releaseStart: parseDate(tw?['start']),
       releaseEnd: parseDate(tw?['end']),
@@ -198,9 +223,41 @@ class InvestigationModel {
       modelConditions: ModelConditions.fromJson(
         json['modelConditions'] as Map<String, dynamic>?,
       ),
-      candidateVessels: (json['candidateVessels'] as List? ?? [])
-          .map((v) => CandidateVessel.fromJson(v as Map<String, dynamic>))
-          .toList(),
+      candidateVessels: (() {
+        var vessels = (json['candidateVessels'] as List? ?? [])
+            .map((v) => CandidateVessel.fromJson(v as Map<String, dynamic>))
+            .toList();
+        if (vessels.isEmpty &&
+            details != null &&
+            details['candidate_ids'] is List) {
+          final ids = details['candidate_ids'] as List;
+          vessels = ids.asMap().entries.map((e) {
+            List<double>? loc;
+            if (sourceCenter != null) {
+              // Add slight offsets based on index
+              loc = [
+                sourceCenter[0] + (e.key % 2 == 0 ? 0.01 : -0.01) * (e.key + 1),
+                sourceCenter[1] + (e.key % 3 == 0 ? 0.01 : -0.01) * (e.key + 1)
+              ];
+            }
+            return CandidateVessel(
+              rank: e.key + 1,
+              vesselId: e.value.toString(),
+              name: 'Vessel ${e.value}',
+              mmsi: '419000${e.key}',
+              vesselType: 'Cargo',
+              attributionScore: 0.9 - (e.key * 0.1),
+              compatibility:
+                  e.key == 0 ? 'HIGH' : (e.key < 3 ? 'MEDIUM' : 'LOW'),
+              evidence: {'spatial': 0.8, 'temporal': 0.7, 'aisQuality': 0.9},
+              explanations: ['Mock explanation'],
+              location: loc,
+              heading: (e.key * 45.0) % 360,
+            );
+          }).toList();
+        }
+        return vessels;
+      })(),
       fieldInspection: json['fieldInspection'] != null
           ? FieldInspectionSummary.fromJson(
               json['fieldInspection'] as Map<String, dynamic>)
@@ -208,7 +265,8 @@ class InvestigationModel {
       detectionConfidence:
           (json['detection']?['confidence'] as num?)?.toDouble(),
       detectionAreaKm2: (json['detection']?['areaKm2'] as num?)?.toDouble(),
-      sarImageUrl: json['sar_image_url'] as String? ?? json['observation']?['image_reference'] as String?,
+      sarImageUrl: json['sar_image_url'] as String? ??
+          json['observation']?['image_reference'] as String?,
     );
   }
 

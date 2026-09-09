@@ -4,6 +4,14 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to capture evidence photos during inspections.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select evidence photos.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to log inspection arrival coords.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location to accurately track your movement to an investigation area.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

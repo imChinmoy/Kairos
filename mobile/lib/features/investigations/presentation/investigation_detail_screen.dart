@@ -38,11 +38,13 @@ class InvestigationDetailScreen extends ConsumerWidget {
                   const Icon(Icons.error_outline,
                       color: KairosTheme.error, size: 48),
                   const SizedBox(height: 12),
-                  Text('Failed to load investigation', style: GoogleFonts.inter()),
+                  Text('Failed to load investigation',
+                      style: GoogleFonts.inter()),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () => context.pop(),
-                    child: Text('GO BACK', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                    child: Text('GO BACK',
+                        style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -67,11 +69,10 @@ class _InvestigationDetailBody extends ConsumerWidget {
       slivers: [
         // App bar
         SliverAppBar(
-          expandedHeight: 220,
           pinned: true,
-          backgroundColor: KairosTheme.surfaceWhite.withOpacity(0.7),
+          backgroundColor: KairosTheme.primaryNavy,
           elevation: 0,
-          foregroundColor: KairosTheme.primaryNavy,
+          foregroundColor: KairosTheme.surfaceWhite,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
             onPressed: () => context.pop(),
@@ -79,7 +80,7 @@ class _InvestigationDetailBody extends ConsumerWidget {
           title: Text(
             'INV-${investigationId.substring(investigationId.length > 6 ? investigationId.length - 6 : 0).toUpperCase()}',
             style: GoogleFonts.inter(
-              color: KairosTheme.primaryNavy,
+              color: KairosTheme.surfaceWhite,
               fontWeight: FontWeight.w700,
               fontSize: 14,
               letterSpacing: 1.0,
@@ -91,12 +92,15 @@ class _InvestigationDetailBody extends ConsumerWidget {
               padding: const EdgeInsets.only(right: 16),
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: KairosTheme.priorityColor(inv.priority).withOpacity(0.2),
+                    color: KairosTheme.priorityColor(inv.priority)
+                        .withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: KairosTheme.priorityColor(inv.priority).withOpacity(0.6),
+                      color: KairosTheme.priorityColor(inv.priority)
+                          .withValues(alpha: 0.6),
                     ),
                   ),
                   child: Row(
@@ -160,7 +164,7 @@ class _InvestigationDetailBody extends ConsumerWidget {
                             Text(
                               'SATELLITE TIME: ${DateFormat('dd MMM yyyy, HH:mm').format(inv.releaseStart!)} UTC',
                               style: GoogleFonts.inter(
-                                color: KairosTheme.primaryNavy.withOpacity(0.8),
+                                color: KairosTheme.primaryNavy.withValues(alpha: 0.8),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 1.0,
@@ -225,8 +229,9 @@ class _DetailTabContentState extends State<_DetailTabContent>
             controller: _tabController,
             indicatorColor: KairosTheme.primaryNavy,
             labelColor: KairosTheme.primaryNavy,
-            unselectedLabelColor: KairosTheme.primaryNavy.withOpacity(0.5),
-            labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 0.5),
+            unselectedLabelColor: KairosTheme.primaryNavy.withValues(alpha: 0.5),
+            labelStyle: GoogleFonts.inter(
+                fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 0.5),
             tabs: const [
               Tab(text: 'OVERVIEW'),
               Tab(text: 'MAP'),
@@ -252,6 +257,60 @@ class _DetailTabContentState extends State<_DetailTabContent>
   }
 }
 
+class _ExpandableDetails extends StatefulWidget {
+  final InvestigationModel inv;
+  const _ExpandableDetails({required this.inv});
+
+  @override
+  State<_ExpandableDetails> createState() => _ExpandableDetailsState();
+}
+
+class _ExpandableDetailsState extends State<_ExpandableDetails> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextButton(
+          onPressed: () => setState(() => _isExpanded = !_isExpanded),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _isExpanded ? 'HIDE DETAILS' : 'SEE MORE DETAILS',
+                  style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      color: KairosTheme.oceanBlue),
+                ),
+                Icon(_isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: KairosTheme.oceanBlue),
+              ],
+            ),
+          ),
+        ),
+        if (_isExpanded) ...[
+          const SizedBox(height: 16),
+          Text(
+              'Detection Confidence: ${(widget.inv.detectionConfidence != null ? (widget.inv.detectionConfidence! * 100).toStringAsFixed(1) : '--')}%',
+              style: GoogleFonts.inter(color: KairosTheme.textSecondary)),
+          const SizedBox(height: 8),
+          Text('Reconstruction Window:',
+              style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600, color: KairosTheme.primaryNavy)),
+          Text(
+              widget.inv.releaseStart != null && widget.inv.releaseEnd != null
+                  ? '${DateFormat('dd MMM yyyy HH:mm').format(widget.inv.releaseStart!)} - ${DateFormat('HH:mm').format(widget.inv.releaseEnd!)} UTC'
+                  : 'N/A',
+              style: GoogleFonts.inter(color: KairosTheme.textSecondary)),
+        ],
+      ],
+    );
+  }
+}
+
 class _OverviewTab extends StatelessWidget {
   final InvestigationModel investigation;
 
@@ -266,6 +325,15 @@ class _OverviewTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            inv.title,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: KairosTheme.primaryNavy,
+            ),
+          ),
+          const SizedBox(height: 16),
           // Satellite image placeholder
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
@@ -277,14 +345,18 @@ class _OverviewTab extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: KairosTheme.surfaceWhite.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: KairosTheme.surfaceWhite.withValues(alpha: 0.4), width: 1.0),
+                  border: Border.all(
+                      color: KairosTheme.surfaceWhite.withValues(alpha: 0.4),
+                      width: 1.0),
                 ),
                 child: inv.sarImageUrl != null
                     ? Image.network(
                         inv.sarImageUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Center(
-                          child: Icon(Icons.broken_image, color: KairosTheme.textMuted, size: 40),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                          child: Icon(Icons.broken_image,
+                              color: KairosTheme.textMuted, size: 40),
                         ),
                       )
                     : const Center(
@@ -305,7 +377,8 @@ class _OverviewTab extends StatelessWidget {
               icon: Icons.radar,
               iconColor: KairosTheme.saffron,
               title: 'PROBABLE INVESTIGATION AREA',
-              subtitle: 'Approx. ${inv.sourceUncertaintyKm!.toStringAsFixed(1)} km radius',
+              subtitle:
+                  'Approx. ${inv.sourceUncertaintyKm!.toStringAsFixed(1)} km radius',
             ),
           const SizedBox(height: 12),
 
@@ -339,7 +412,9 @@ class _OverviewTab extends StatelessWidget {
           _KeyInfoRow(
             icon: Icons.directions_boat_outlined,
             label: 'CANDIDATE VESSELS',
-            value: '${inv.candidateVessels.length} vessel${inv.candidateVessels.length != 1 ? 's' : ''} identified'.toUpperCase(),
+            value:
+                '${inv.candidateVessels.length} vessel${inv.candidateVessels.length != 1 ? 's' : ''} identified'
+                    .toUpperCase(),
           ),
 
           if (inv.detectionAreaKm2 != null)
@@ -356,7 +431,8 @@ class _OverviewTab extends StatelessWidget {
             label: 'NAVIGATE TO AREA',
             icon: Icons.navigation_rounded,
             color: KairosTheme.oceanBlue,
-            onPressed: () => context.push('/map', extra: {'investigationId': investigation.id}),
+            onPressed: () => context
+                .go('/map', extra: {'investigationId': investigation.id}),
           ),
           const SizedBox(height: 12),
 
@@ -365,8 +441,11 @@ class _OverviewTab extends StatelessWidget {
             label: 'START FIELD INSPECTION',
             icon: Icons.assignment_rounded,
             color: KairosTheme.teal,
-            onPressed: () => context.push('/investigations/${investigation.id}/inspect'),
+            onPressed: () =>
+                context.push('/investigations/${investigation.id}/inspect'),
           ),
+          const SizedBox(height: 12),
+          _ExpandableDetails(inv: inv),
           const SizedBox(height: 60),
         ],
       ),
@@ -396,48 +475,53 @@ class _InfoCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: KairosTheme.surfaceWhite.withOpacity(0.15),
+            color: KairosTheme.surfaceWhite.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(KairosTheme.radius12),
-            border: Border.all(color: KairosTheme.surfaceWhite.withOpacity(0.4), width: 1.0),
+            border: Border.all(
+                color: KairosTheme.surfaceWhite.withValues(alpha: 0.4), width: 1.0),
             boxShadow: [
               BoxShadow(
-                color: KairosTheme.primaryNavy.withOpacity(0.02),
+                color: KairosTheme.primaryNavy.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: iconColor, size: 18),
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11,
+                            letterSpacing: 0.5)),
+                    const SizedBox(height: 4),
+                    Text(subtitle,
+                        style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            color: KairosTheme.primaryNavy,
+                            fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w700, fontSize: 11, letterSpacing: 0.5)),
-                const SizedBox(height: 4),
-                Text(subtitle,
-                    style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14, color: KairosTheme.primaryNavy, fontWeight: FontWeight.w600)),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
-    ),
-  ),
-);
+    );
   }
 }
 
@@ -466,10 +550,15 @@ class _KeyInfoRow extends StatelessWidget {
               children: [
                 Text(label,
                     style: GoogleFonts.inter(
-                        fontSize: 10, color: KairosTheme.textSecondary, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+                        fontSize: 10,
+                        color: KairosTheme.textSecondary,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5)),
                 Text(value,
                     style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14, fontWeight: FontWeight.w700, color: KairosTheme.primaryNavy)),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: KairosTheme.primaryNavy)),
               ],
             ),
           ),
@@ -601,8 +690,8 @@ class _ComparisonRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 13)),
+              style:
+                  const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -617,7 +706,8 @@ class _ComparisonRow extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1)),
                     Text(modelValue,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        style: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -646,7 +736,8 @@ class _ComparisonRow extends StatelessWidget {
                         color: isRecorded
                             ? KairosTheme.textPrimary
                             : KairosTheme.textMuted,
-                        fontStyle: isRecorded ? FontStyle.normal : FontStyle.italic,
+                        fontStyle:
+                            isRecorded ? FontStyle.normal : FontStyle.italic,
                       ),
                     ),
                   ],
@@ -675,35 +766,36 @@ class _MiniMapCard extends StatelessWidget {
     if (geo == null) return const SizedBox();
 
     final centerCoord = geo.center;
-    final centerPoint = centerCoord != null 
-        ? LatLng(centerCoord[0], centerCoord[1]) 
+    final centerPoint = centerCoord != null
+        ? LatLng(centerCoord[0], centerCoord[1])
         : const LatLng(18.9388, 72.9153);
 
     final points = geo.polygonPoints;
-    final polygon = points != null 
+    final polygon = points != null
         ? Polygon(
             points: points.map((p) => LatLng(p[0], p[1])).toList(),
             color: KairosTheme.saffron.withValues(alpha: 0.3),
             borderColor: KairosTheme.saffron,
             borderStrokeWidth: 2,
-            isFilled: true,
+            
           )
         : null;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(KairosTheme.radius12),
       child: Container(
-        height: 220,
+        height: 450,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(KairosTheme.radius12),
-          border: Border.all(color: KairosTheme.surfaceWhite.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: KairosTheme.surfaceWhite.withValues(alpha: 0.3)),
         ),
         child: FlutterMap(
           options: MapOptions(
             initialCenter: centerPoint,
             initialZoom: 10,
             interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.none, // Make it static/read-only for scrolling
+              flags: InteractiveFlag.all,
             ),
           ),
           children: [
@@ -760,7 +852,8 @@ class _CandidateVesselsTable extends StatelessWidget {
           decoration: BoxDecoration(
             color: KairosTheme.surfaceWhite.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: KairosTheme.surfaceWhite.withValues(alpha: 0.4)),
+            border: Border.all(
+                color: KairosTheme.surfaceWhite.withValues(alpha: 0.4)),
           ),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -784,7 +877,8 @@ class _CandidateVesselsTable extends StatelessWidget {
                 DataColumn(label: Text('COMPATIBILITY')),
               ],
               rows: vessels.map((v) {
-                final compatColor = KairosTheme.compatibilityColor(v.compatibility);
+                final compatColor =
+                    KairosTheme.compatibilityColor(v.compatibility);
                 return DataRow(cells: [
                   DataCell(Text('#${v.rank}')),
                   DataCell(Text(v.name)),
@@ -792,7 +886,8 @@ class _CandidateVesselsTable extends StatelessWidget {
                   DataCell(Text(v.vesselType)),
                   DataCell(
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: compatColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),

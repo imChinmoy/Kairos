@@ -46,7 +46,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
     final confirm = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         backgroundColor: KairosTheme.surfaceWhite,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(KairosTheme.radius12)),
         title: Row(
@@ -71,11 +71,11 @@ class _SosScreenState extends ConsumerState<SosScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(ctx, false),
             child: Text('Cancel', style: GoogleFonts.inter(color: KairosTheme.textSecondary)),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: KairosTheme.error,
               minimumSize: const Size(120, 44),
@@ -90,10 +90,16 @@ class _SosScreenState extends ConsumerState<SosScreen>
     );
 
     if (confirm == true && mounted) {
+      _pulseController.stop();
       setState(() => _sosSent = true);
 
       try {
-        final loc = await LocationService.getCurrentLocation();
+        final locAsync = ref.read(currentLocationProvider);
+        var loc = locAsync.value;
+        
+        // Fallback to manual fetch if stream hasn't emitted yet
+        loc ??= await LocationService.getCurrentLocation();
+
         await ref.read(sosRepositoryProvider).triggerSos(
           loc?.latitude ?? 0.0,
           loc?.longitude ?? 0.0,
@@ -134,9 +140,11 @@ class _SosScreenState extends ConsumerState<SosScreen>
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
+    // Keep GPS stream hot
+    ref.watch(currentLocationProvider);
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: KairosTheme.backgroundLight,
       appBar: const KairosAppBar(
         title: 'EMERGENCY SOS',
         subtitle: 'NTRO Field Protocol',
@@ -179,7 +187,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
               // Main SOS button
               Center(
                 child: ScaleTransition(
-                  scale: _sosSent ? const AlwaysStoppedAnimation(1.0) : _pulseAnim,
+                  scale: _pulseAnim,
                   child: GestureDetector(
                     onLongPress: _sosSent ? null : _triggerSos,
                     child: Container(

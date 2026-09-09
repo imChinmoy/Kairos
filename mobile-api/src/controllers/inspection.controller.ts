@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authenticate';
 import { inspectionService } from '../services/InspectionService';
+import { FieldInspection } from '../models/FieldInspection';
 import { FieldObservation } from '../models/FieldObservation';
 import { sendSuccess, sendError } from '../utils/apiResponse';
 import { createAuditLog } from '../services/AuditService';
@@ -40,6 +41,28 @@ export async function getInspection(req: AuthenticatedRequest, res: Response): P
   }
 
   sendSuccess(res, inspection);
+}
+
+export async function getMyInspections(req: AuthenticatedRequest, res: Response): Promise<void> {
+  const inspections = await FieldInspection.aggregate([
+    { $match: { officerId: req.user!._id } },
+    { 
+      $lookup: { 
+        from: 'evidence', 
+        localField: '_id', 
+        foreignField: 'inspectionId', 
+        as: 'evidence' 
+      } 
+    },
+    { 
+      $addFields: { 
+        hasEvidence: { $gt: [{ $size: "$evidence" }, 0] } 
+      } 
+    },
+    { $project: { evidence: 0 } },
+    { $sort: { updatedAt: -1 } }
+  ]);
+  sendSuccess(res, inspections);
 }
 
 export async function updateInspection(req: AuthenticatedRequest, res: Response): Promise<void> {

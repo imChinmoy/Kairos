@@ -32,7 +32,9 @@ class _EvidenceCaptureScreenState extends ConsumerState<EvidenceCaptureScreen> {
   Future<void> _capturePhoto() async {
     setState(() => _isCapturing = true);
     try {
-      final location = await LocationService.getCurrentLocation();
+      final locAsync = ref.read(currentLocationProvider);
+      final location = locAsync.value;
+
       final photo = await CameraService.capturePhoto(
         latitude: location?.latitude,
         longitude: location?.longitude,

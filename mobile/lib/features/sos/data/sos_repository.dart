@@ -11,6 +11,7 @@ class SosRepository {
       method: 'POST',
       path: '/sos/trigger',
       data: {
+        'contactType': 'COAST_GUARD',
         'latitude': latitude,
         'longitude': longitude,
       },

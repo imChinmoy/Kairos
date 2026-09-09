@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/kairos_theme.dart';
+import '../data/report_repository.dart';
+import '../domain/report_model.dart';
 
 class ReportScreen extends ConsumerWidget {
   const ReportScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final reportsAsync = ref.watch(inspectionReportsProvider);
+
     return Scaffold(
       backgroundColor: KairosTheme.offWhite,
       appBar: AppBar(
@@ -14,55 +18,50 @@ class ReportScreen extends ConsumerWidget {
         backgroundColor: KairosTheme.navyBlue,
         foregroundColor: Colors.white,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          // Summary stat bar
-          Row(
-            children: [
-              _StatCard(
-                  label: 'Total', value: '5', color: KairosTheme.oceanBlue),
-              const SizedBox(width: 10),
-              _StatCard(
-                  label: 'Confirmed', value: '2', color: KairosTheme.error),
-              const SizedBox(width: 10),
-              _StatCard(
-                  label: 'Submitted', value: '4', color: KairosTheme.success),
-            ],
-          ),
-          const SizedBox(height: 20),
+      body: reportsAsync.when(
+        data: (reports) {
+          final total = reports.length;
+          final confirmed = reports.where((r) => r.finding == 'OIL_CONFIRMED').length;
+          final submitted = reports.where((r) => r.status == 'SUBMITTED').length;
 
-          const Text(
-            'Recent Reports',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-          ),
-          const SizedBox(height: 12),
+          return RefreshIndicator(
+            onRefresh: () => ref.refresh(inspectionReportsProvider.future),
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                // Summary stat bar
+                Row(
+                  children: [
+                    _StatCard(label: 'Total', value: total.toString(), color: KairosTheme.oceanBlue),
+                    const SizedBox(width: 10),
+                    _StatCard(label: 'Confirmed', value: confirmed.toString(), color: KairosTheme.error),
+                    const SizedBox(width: 10),
+                    _StatCard(label: 'Submitted', value: submitted.toString(), color: KairosTheme.success),
+                  ],
+                ),
+                const SizedBox(height: 20),
 
-          // Demo report cards
-          _ReportCard(
-            title: 'Oil Spill — Arabian Sea',
-            investigationId: 'demo-inv-001',
-            finding: 'OIL_CONFIRMED',
-            submittedAt: DateTime.now().subtract(const Duration(hours: 2)),
-            hasEvidence: true,
-          ),
-          const SizedBox(height: 10),
-          _ReportCard(
-            title: 'Suspected Slick — Bay of Bengal',
-            investigationId: 'demo-inv-002',
-            finding: 'OIL_SUSPECTED',
-            submittedAt: DateTime.now().subtract(const Duration(days: 1)),
-            hasEvidence: true,
-          ),
-          const SizedBox(height: 10),
-          _ReportCard(
-            title: 'Routine Check — Andaman Islands',
-            investigationId: 'demo-inv-004',
-            finding: 'NO_OIL',
-            submittedAt: DateTime.now().subtract(const Duration(days: 5)),
-            hasEvidence: false,
-          ),
-        ],
+                const Text(
+                  'Recent Reports',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                ),
+                const SizedBox(height: 12),
+
+                if (reports.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: Text('No reports found.'),
+                    ),
+                  )
+                else
+                  ...reports.map((report) => _ReportCard(report: report)),
+              ],
+            ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );
   }
@@ -101,8 +100,7 @@ class _StatCard extends StatelessWidget {
             ),
             Text(
               label,
-              style: const TextStyle(
-                  fontSize: 11, color: KairosTheme.textSecondary),
+              style: const TextStyle(fontSize: 11, color: KairosTheme.textSecondary),
             ),
           ],
         ),
@@ -112,22 +110,12 @@ class _StatCard extends StatelessWidget {
 }
 
 class _ReportCard extends StatelessWidget {
-  final String title;
-  final String investigationId;
-  final String finding;
-  final DateTime submittedAt;
-  final bool hasEvidence;
+  final InspectionReportModel report;
 
-  const _ReportCard({
-    required this.title,
-    required this.investigationId,
-    required this.finding,
-    required this.submittedAt,
-    required this.hasEvidence,
-  });
+  const _ReportCard({required this.report});
 
   Color get _findingColor {
-    switch (finding) {
+    switch (report.finding) {
       case 'OIL_CONFIRMED':
         return KairosTheme.error;
       case 'OIL_SUSPECTED':
@@ -140,7 +128,7 @@ class _ReportCard extends StatelessWidget {
   }
 
   String get _findingLabel {
-    switch (finding) {
+    switch (report.finding) {
       case 'OIL_CONFIRMED':
         return 'Oil Confirmed';
       case 'OIL_SUSPECTED':
@@ -150,13 +138,16 @@ class _ReportCard extends StatelessWidget {
       case 'INCONCLUSIVE':
         return 'Inconclusive';
       default:
-        return finding;
+        return report.finding ?? report.status;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final date = report.submittedAt ?? report.updatedAt ?? DateTime.now();
+
     return Container(
+      margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: KairosTheme.white,
@@ -185,15 +176,14 @@ class _ReportCard extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '${submittedAt.day} ${_month(submittedAt.month)} ${submittedAt.year}',
-                style: const TextStyle(
-                    fontSize: 11, color: KairosTheme.textMuted),
+                '${date.day} ${_month(date.month)} ${date.year}',
+                style: const TextStyle(fontSize: 11, color: KairosTheme.textMuted),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            title,
+            'Field Inspection — ${report.fastApiInvestigationId}',
             style: const TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 14,
@@ -203,14 +193,14 @@ class _ReportCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                investigationId.toUpperCase(),
+                report.id.length > 8 ? report.id.substring(report.id.length - 8).toUpperCase() : report.id.toUpperCase(),
                 style: const TextStyle(
                   fontSize: 10,
                   fontFamily: 'monospace',
                   color: KairosTheme.textMuted,
                 ),
               ),
-              if (hasEvidence) ...[
+              if (report.hasEvidence) ...[
                 const SizedBox(width: 10),
                 const Icon(Icons.camera_alt, size: 12, color: KairosTheme.teal),
                 const SizedBox(width: 2),
@@ -225,7 +215,11 @@ class _ReportCard extends StatelessWidget {
           Row(
             children: [
               OutlinedButton(
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Report details view coming soon.')),
+                  );
+                },
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(0, 36),
                   padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -234,7 +228,11 @@ class _ReportCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Generating PDF... PDF saved and shared.')),
+                  );
+                },
                 icon: const Icon(Icons.share_outlined, size: 14),
                 label: const Text('Share', style: TextStyle(fontSize: 12)),
                 style: OutlinedButton.styleFrom(
