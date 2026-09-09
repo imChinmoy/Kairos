@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/kairos_theme.dart';
@@ -25,11 +26,17 @@ class KairosAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color.fromARGB(255, 20, 58, 97).withOpacity(0.95),
+      backgroundColor: const Color(0xFF0D253F).withValues(alpha: 0.85),
+      flexibleSpace: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(color: Colors.transparent),
+        ),
+      ),
       elevation: 0,
       toolbarHeight: 70,
       centerTitle: centerTitle,
-      titleSpacing: centerTitle ? null : 24,
+      titleSpacing: centerTitle ? null : 16,
       automaticallyImplyLeading: showBackButton,
       iconTheme: const IconThemeData(color: KairosTheme.surfaceWhite),
       leading: leading ?? (showBackButton && Navigator.of(context).canPop()
@@ -38,37 +45,59 @@ class KairosAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: () => Navigator.of(context).pop(),
             )
           : null),
-      title: imageTitle != null
-          ? Image.asset(
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (imageTitle != null) ...[
+            Image.asset(
               imageTitle!,
-              height: 50,
+              height: 36,
               fit: BoxFit.contain,
-            )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+            ),
+            const SizedBox(width: 12),
+            Container(
+              height: 24,
+              width: 1,
+              color: KairosTheme.surfaceWhite.withValues(alpha: 0.2),
+            ),
+            const SizedBox(width: 12),
+          ],
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.asset(
+              'assets/images/logo.jpeg',
+              height: 28,
+              width: 28,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title.toUpperCase(),
+                style: GoogleFonts.plusJakartaSans(
+                  color: KairosTheme.surfaceWhite,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              if (subtitle != null)
                 Text(
-                  title.toUpperCase(),
-                  style: GoogleFonts.plusJakartaSans(
-                    color: KairosTheme.surfaceWhite,
-                    fontSize: subtitle == null ? 18 : 16,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5,
+                  subtitle!,
+                  style: GoogleFonts.inter(
+                    color: KairosTheme.surfaceWhite.withValues(alpha: 0.8),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle!,
-                    style: GoogleFonts.inter(
-                      color: KairosTheme.surfaceWhite.withOpacity(0.8),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ],
-            ),
+            ],
+          ),
+        ],
+      ),
       actions: actions,
     );
   }

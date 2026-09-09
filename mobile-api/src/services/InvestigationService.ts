@@ -1,5 +1,5 @@
 import { InvestigationAssignment, AssignmentStatus } from '../models/InvestigationAssignment';
-import { fastApiClient, FastApiFullInvestigation } from './FastApiClient';
+import { FastApiDatabase, FastApiFullInvestigation } from '../models/FastApiCollections';
 import { AppError } from '../middleware/errorHandler';
 import { isSupervisorOrAdmin } from '../middleware/authorize';
 import { AuthenticatedRequest } from '../middleware/authenticate';
@@ -96,7 +96,7 @@ export class InvestigationService {
   }
 
   async getFullInvestigation(fastApiInvestigationId: string): Promise<FastApiFullInvestigation | null> {
-    return fastApiClient.getInvestigationFull(fastApiInvestigationId);
+    return FastApiDatabase.getInvestigationFull(fastApiInvestigationId);
   }
 
   async acceptInvestigation(req: AuthenticatedRequest, fastApiInvestigationId: string) {
@@ -185,7 +185,7 @@ export class InvestigationService {
   }
 
   async getMapData(fastApiInvestigationId: string) {
-    const full = await fastApiClient.getInvestigationFull(fastApiInvestigationId);
+    const full = await FastApiDatabase.getInvestigationFull(fastApiInvestigationId);
 
     if (!full) {
       return {

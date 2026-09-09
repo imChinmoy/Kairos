@@ -1,13 +1,10 @@
 import { Request, Response } from 'express';
 import { isConnected } from '../config/database';
-import { fastApiClient } from '../services/FastApiClient';
 import { config } from '../config';
 import { sendSuccess } from '../utils/apiResponse';
 
 export async function healthCheck(_req: Request, res: Response): Promise<void> {
   const dbConnected = isConnected();
-  const fastApiAlive = await fastApiClient.healthCheck();
-
   const status = dbConnected ? 'ok' : 'degraded';
 
   sendSuccess(
@@ -18,7 +15,6 @@ export async function healthCheck(_req: Request, res: Response): Promise<void> {
       version: '1.0.0',
       environment: config.NODE_ENV,
       database: dbConnected ? 'connected' : 'disconnected',
-      fastApi: fastApiAlive ? 'connected' : 'unreachable',
       timestamp: new Date().toISOString(),
     },
     dbConnected ? 200 : 503

@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authenticate';
 import { investigationService } from '../services/InvestigationService';
-import { fastApiClient } from '../services/FastApiClient';
+import { FastApiDatabase } from '../models/FastApiCollections';
 import { sendSuccess, sendPaginated, sendError } from '../utils/apiResponse';
 import { createAuditLog } from '../services/AuditService';
 import { AuditAction } from '../models/AuditLog';
@@ -36,7 +36,7 @@ export async function listInvestigations(req: AuthenticatedRequest, res: Respons
   // For performance in a list view, we return the assignment + basic FastAPI status
   const enriched = await Promise.all(
     assignments.map(async (a) => {
-      const fastApiData = await fastApiClient.getInvestigation(a.fastApiInvestigationId).catch(() => null);
+      const fastApiData = await FastApiDatabase.getInvestigation(a.fastApiInvestigationId).catch(() => null);
       return {
         id: a.fastApiInvestigationId,
         assignmentId: a._id,
