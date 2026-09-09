@@ -78,11 +78,11 @@ export class FastApiDatabase {
       }
 
       // Fetch related documents based on the investigation data
-      // FastAPI usually stores observations, detections etc referenced by investigation_id
-      const obsPromise = db.collection('observations').findOne({ investigation_id: investigationObjId });
-      const detPromise = db.collection('detections').findOne({ investigation_id: investigationObjId });
-      const recPromise = db.collection('reconstructions').findOne({ investigation_id: investigationObjId });
-      const envPromise = db.collection('environments').findOne({ investigation_id: investigationObjId });
+      // FastAPI usually stores observations, detections etc referenced by investigation_id as strings
+      const obsPromise = db.collection('observations').findOne({ investigation_id: id });
+      const detPromise = db.collection('detections').findOne({ investigation_id: id });
+      const recPromise = db.collection('reconstructions').findOne({ investigation_id: id });
+      const envPromise = db.collection('environments').findOne({ investigation_id: id });
       
       // Candidates are usually an array of ObjectIds in `candidate_ids`
       let candPromise: Promise<any[]> = Promise.resolve([]);
@@ -94,7 +94,7 @@ export class FastApiDatabase {
       } else {
         // Alternatively, they might just be queried by investigation_id
         candPromise = db.collection('candidates')
-          .find({ investigation_id: investigationObjId })
+          .find({ investigation_id: id })
           .sort({ rank: 1 })
           .toArray();
       }
