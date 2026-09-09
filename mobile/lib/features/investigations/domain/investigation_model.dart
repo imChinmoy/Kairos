@@ -27,6 +27,20 @@ class GeoJsonGeometry {
     }
     return null;
   }
+  /// Returns list of [lat, lng] points for simple polygons
+  List<List<double>>? get polygonPoints {
+    if (type == 'Polygon' && coordinates is List) {
+      final ring = (coordinates as List).first as List;
+      final points = <List<double>>[];
+      for (final pt in ring) {
+        if (pt is List) {
+          points.add([(pt[1] as num).toDouble(), (pt[0] as num).toDouble()]);
+        }
+      }
+      return points;
+    }
+    return null;
+  }
 }
 
 class CandidateVessel {
@@ -126,6 +140,7 @@ class InvestigationModel {
   final FieldInspectionSummary? fieldInspection;
   final double? detectionConfidence;
   final double? detectionAreaKm2;
+  final String? sarImageUrl;
 
   const InvestigationModel({
     required this.id,
@@ -144,6 +159,7 @@ class InvestigationModel {
     this.fieldInspection,
     this.detectionConfidence,
     this.detectionAreaKm2,
+    this.sarImageUrl,
   });
 
   factory InvestigationModel.fromJson(Map<String, dynamic> json) {
@@ -160,13 +176,14 @@ class InvestigationModel {
     }
 
     final tw = json['releaseTimeWindow'] as Map<String, dynamic>?;
+    final details = json['investigationDetails'] as Map<String, dynamic>?;
 
     return InvestigationModel(
       id: json['id'] as String? ?? '',
       fastApiStatus: json['fastApiStatus'] as String?,
-      assignmentStatus: json['assignmentStatus'] as String? ?? 'ASSIGNED',
+      assignmentStatus: details?['status'] as String? ?? json['assignmentStatus'] as String? ?? 'ASSIGNED',
       priority: json['priority'] as String? ?? 'MEDIUM',
-      assignedAt: parseDate(json['assignedAt']),
+      assignedAt: parseDate(details?['created_at']) ?? parseDate(json['assignedAt']),
       sourceRegion: parseGeometry(json['sourceRegion']),
       targetLocation: json['targetLocation'] != null
           ? [
@@ -191,6 +208,7 @@ class InvestigationModel {
       detectionConfidence:
           (json['detection']?['confidence'] as num?)?.toDouble(),
       detectionAreaKm2: (json['detection']?['areaKm2'] as num?)?.toDouble(),
+      sarImageUrl: json['sar_image_url'] as String? ?? json['observation']?['image_reference'] as String?,
     );
   }
 

@@ -12,6 +12,7 @@ export interface FastApiInvestigation {
 
 export interface FastApiFullInvestigation {
   investigation: FastApiInvestigation;
+  sar_image_url?: string | null;
   observation?: {
     _id: string;
     timestamp: string;
@@ -120,6 +121,7 @@ export class FastApiDatabase {
           resolution_m: observation.resolution_m,
           image_reference: observation.image_reference,
         } : undefined,
+        sar_image_url: observation?.image_reference || null,
         detection: detection ? {
           detected: detection.detected,
           confidence: detection.confidence,

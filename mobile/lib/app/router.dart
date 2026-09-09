@@ -61,13 +61,13 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/map', builder: (_, __) => const MapScreen()),
           GoRoute(path: '/sos', builder: (_, __) => const SosScreen()),
           GoRoute(path: '/reports', builder: (_, __) => const ReportScreen()),
-          GoRoute(
-            path: '/investigations',
-            builder: (_, __) => const InvestigationListScreen(),
-          ),
         ],
       ),
       // Full-screen routes (no shell)
+      GoRoute(
+        path: '/investigations',
+        builder: (_, __) => const InvestigationListScreen(),
+      ),
       GoRoute(
         path: '/investigations/:id',
         builder: (_, state) => InvestigationDetailScreen(

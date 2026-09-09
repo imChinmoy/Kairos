@@ -224,7 +224,7 @@ class HomeScreen extends ConsumerWidget {
                     child: SectionHeader(
                       title: 'ACTIVE INVESTIGATIONS',
                       actionText: 'VIEW ALL',
-                      onActionTap: () => context.go('/investigations'),
+                      onActionTap: () => context.push('/investigations'),
                     ),
                   ),
                 ),

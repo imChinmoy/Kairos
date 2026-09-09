@@ -109,7 +109,7 @@ class _MoreSheet extends StatelessWidget {
           _MoreItem(
             icon: Icons.list_alt_outlined,
             label: 'All Investigations',
-            onTap: () { context.pop(); context.go('/investigations'); },
+            onTap: () { context.pop(); context.push('/investigations'); },
           ),
           _MoreItem(
             icon: Icons.settings_outlined,
